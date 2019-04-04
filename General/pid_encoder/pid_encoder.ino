@@ -19,7 +19,7 @@
 int e = 0, e_ant = 0, e_acum = 0; // error, error anterior y error acumulado
 int pwmi = 0, pwmd = 0; // pwm que pasamos a cada motor
 
-#define Kp 1 // P
+#define Kp 8 // P
 #define Ki 0 // I
 #define Kd 0 // D
 #define PID Kp*e+Kd*(e-e_ant)+Ki*e_acum // calculo del PID con una macro
@@ -52,34 +52,18 @@ void setup() {
 
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, LOW);
+
+  arrancar();
 }
 
 void loop() {
 
-  e = CountI - CountD;
-
-  if (e_ant * e > 0) {
-    e_acum += e;
-  } else {
-    e_acum = 0;
-  }
-
-  e_ant = e;
+  error();
 
   pwmi = PWM - PID;
   pwmd = PWM + PID;
 
-  if (pwmi > MAX_PWM) {
-    pwmi = MAX_PWM;
-  } else if (pwmi < MIN_PWM) {
-    pwmi = MIN_PWM;
-  }
-
-  if (pwmd > MAX_PWM) {
-    pwmd = MAX_PWM;
-  } else if (pwmd < MIN_PWM) {
-    pwmd = MIN_PWM;
-  }
+  acotar();
 
   analogWrite(PWMI, pwmi);
   analogWrite(PWMD, pwmd);
@@ -94,7 +78,7 @@ void loop() {
 
 }
 
-// Funcion encoder motor izquierdo
+// Encoder motor izquierdo
 void EncoderEventMotI() {
   if (digitalRead(ENC1_MOTI) == HIGH) {
     if (digitalRead(ENC2_MOTI) == LOW) {
@@ -111,7 +95,7 @@ void EncoderEventMotI() {
   }
 }
 
-// Funcion encoder motor derecho
+// Encoder motor derecho
 void EncoderEventMotD() {
   if (digitalRead(ENC1_MOTD) == HIGH) {
     if (digitalRead(ENC2_MOTD) == LOW) {
@@ -125,5 +109,51 @@ void EncoderEventMotD() {
     } else {
       CountD++;
     }
+  }
+}
+
+//Arrancar sin caballito
+void arrancar() {
+  for (int i = MIN_PWM; i <= PWM; i++) {
+
+    error();
+
+    pwmi = i - e;
+    pwmd = i + e;
+
+    acotar();
+
+    analogWrite(PWMI, pwmi);
+    analogWrite(PWMD, pwmd);
+    delay(10);
+  }
+}
+
+// Calcular el error
+void error () {
+  e = CountI - CountD;
+
+  if (e_ant * e > 0) {
+    e_acum += e;
+  } else {
+    e_acum = 0;
+  }
+
+  e_ant = e;
+}
+
+
+// Acotar el pwm de los motores para que no se salga del MIN y MAX
+void acotar() {
+  if (pwmi > MAX_PWM) {
+    pwmi = MAX_PWM;
+  } else if (pwmi < MIN_PWM) {
+    pwmi = MIN_PWM;
+  }
+
+  if (pwmd > MAX_PWM) {
+    pwmd = MAX_PWM;
+  } else if (pwmd < MIN_PWM) {
+    pwmd = MIN_PWM;
   }
 }
