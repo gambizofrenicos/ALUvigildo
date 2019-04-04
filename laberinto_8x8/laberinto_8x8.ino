@@ -120,8 +120,8 @@ void loop() {
          } //solo guardo los que no son repetidos
         }
         for (l=0; l++; l<i){ //guardo en la memoria cada uno de los elementos, porque son todos de un byte
-          EEPROM.write (l, camino_hor[l]);
-          EEPROM.write (999-l, camino_hor[l]); //cada una va en uno de los extremos de la memoria, para evitar sobreescribir
+          EEPROM.write (l, camino_hor_def[l]);
+          EEPROM.write (999-l, camino_ver_def[l]); //cada una va en uno de los extremos de la memoria, para evitar sobreescribir
           }
         EEPROM.write (499, i); //me interesa guardar este contador, que como se ve 7-10 líneas más arriba tiene el número de componentes del vector que guarda el camino, para ver cuántas posiciones de memoria tengo que leer
         EEPROM.write (500, laberinto_resuelto); //esta también la quiero guardar para la próxima vez que entre saber que está resuelto y no volver a mapear
@@ -322,7 +322,8 @@ void loop() {
               }
             }
             }
-          } 
+          }
+   delay (2000); 
  }
 
 
