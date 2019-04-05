@@ -19,6 +19,7 @@ uint8_t camino_ver_def [60];
 uint8_t last_camino [2]; // Es la última casilla en la cual he dejado un camino sin visitar, a la que voy cuando termino el camino actual
 uint8_t ori; //0 si girado hacia la izquierda, 2 si girado hacia la derecha, 1 si va hacia adelante y 3 si va hacia atrás
 boolean paredes_sensor [4]; //leídas con los sensores, es decir, desde el sistema de referencia del robot. La pared de atrás en teoría la conozco del movimiento anterior.
+boolean aderechas; //Para los bucles, en un principio vamos a derechas pero si nos estamos quedando atrancados en un bucle pasamos a ir a izquierdas.
 uint8_t i = 0; //siempre te hace falta un buen índice
 uint8_t j = 0; //este es para añadir nuevos valores a los arrays que guardan el camino
 uint8_t k = 0;
@@ -84,6 +85,7 @@ void actualizar_paredes(){
   void setup() {
   //movidas de pines, loco
   ori = 1;
+  aderechas = 1;
   camino_hor [j] = 0;
   camino_ver [j] = 0;
   laberinto[3][3].paredes[1] = 0;
@@ -139,6 +141,7 @@ void loop() {
           leer_paredes();
           actualizar_paredes();
       }
+      if (aderechas){
         if (laberinto[hor][ver].paredes[2] == 0){
           girar_derecha();
           mover_recto();
@@ -218,6 +221,87 @@ void loop() {
                   }
                 }
               }
+      } else { //paso a ir a izquierdas
+        if (laberinto[hor][ver].paredes[0] == 0){
+          girar_izquierda();
+          mover_recto();
+          switch (ori) {
+            case 1:
+              ori = 0;
+              hor = hor - 1;
+              break;
+            case 2:
+              ori = 1;
+              ver = ver + 1;
+              break;
+            case 0:
+              ori = 3;
+              ver = ver - 1;
+              break;
+            case 3:
+              ori = 2;
+              hor = hor + 1;
+            }
+          } else {
+            if (laberinto[hor][ver].paredes[1] == 0){
+              mover_recto();
+              switch (ori) {
+                case 1:
+                  ver = ver + 1;
+                  break;
+                case 2:
+                  hor = hor + 1;
+                  break;
+                case 0:
+                  hor = hor - 1;
+                  break;
+                case 3:
+                  ver = ver - 1;
+              }
+             } else {
+               if (laberinto[hor][ver].paredes[2] == 0){
+                girar_derecha(); //ojo, tanto mover izquierda como mover derecha se refieren a ir de una casilla a la inmediatamente contigua a ese lado, como si tuviéramos omniruedas. Esto quiere decir que la cantidad de tiempo que me muevo recto es distinto que cuando sigo recto ya que tengo que restar el giro
+                mover_recto();
+                switch (ori) {
+                  case 1:
+                    ori = 2;
+                    hor = hor + 1;
+                    break;
+                  case 2:
+                    ori = 3;
+                    ver = ver - 1;
+                    break;
+                  case 0:
+                    ori = 1;
+                    ver = ver + 1;
+                    break;
+                  case 3:
+                    ori = 0;
+                    hor = hor - 1;
+                  }
+                } else {
+                  dalavuelta_joder(); //para unificar el código lo que quiero es dar la vuelta y mover una casilla recto (no va a haber pared porque solo hago esto si hay pared en las otras 3 direcciones)
+                  switch (ori) {
+                  case 1:
+                    ori = 3;
+                    ver = ver - 1;
+                    break;
+                  case 2:
+                    ori = 0;
+                    hor = hor - 1;
+                    break;
+                  case 0:
+                    ori = 2;
+                    hor = hor + 1;
+                    break;
+                  case 3:
+                    ori = 1;
+                    ver = ver + 1;
+                  }
+                  }
+                }
+              }
+        }
         for (l=0; l++; l<2){
          pos_pre[l] = pos_act[l]; 
          } 
