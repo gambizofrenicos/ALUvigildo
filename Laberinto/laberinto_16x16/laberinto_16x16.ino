@@ -12,10 +12,10 @@ uint8_t hor = 0;
 uint8_t ver = 0;
 uint8_t pos_act [2] = {0, 0};
 uint8_t pos_pre [2] = {0, 0};
-uint8_t camino_hor [150]; //podría ajustar incluso más, no creo que pase por 500 casillas en el primer intento
-uint8_t camino_ver [150];
-uint8_t camino_hor_def [60]; //también puedo ajustar más, pero como no repito casillas como máximo tendré que recorrerlas todas
-uint8_t camino_ver_def [60];
+uint8_t camino_hor [500]; //pueden ser algunas más pero, joder, mucha casualidad sería que fuera tan jodido
+uint8_t camino_ver [500];
+uint8_t camino_hor_def [250]; //también puedo ajustar más, pero como no repito casillas como máximo tendré que recorrerlas todas
+uint8_t camino_ver_def [250];
 uint8_t last_camino [2]; // Es la última casilla en la cual he dejado un camino sin visitar, a la que voy cuando termino el camino actual
 uint8_t ori; //0 si girado hacia la izquierda, 2 si girado hacia la derecha, 1 si va hacia adelante y 3 si va hacia atrás
 boolean paredes_sensor [4]; //leídas con los sensores, es decir, desde el sistema de referencia del robot. La pared de atrás en teoría la conozco del movimiento anterior.
@@ -132,8 +132,7 @@ void loop() {
 
 
         //Hasta ahora he descrito lo que pasa si estaba en modo "resolver laberinto" y llego al centro, es decir, el primer intento
-
-
+        
         
       } else { //lo que hago si aún no he resuelto el laberinto y aún no estoy en el centro
       // voy a ir siempre a la derecha por arriba España y eso
@@ -141,6 +140,13 @@ void loop() {
           leer_paredes();
           actualizar_paredes();
       }
+      for (l = k-1; l--; l>0){ //voy a comprobar si estoy en una casilla que ya he estado y además la casilla anterior también lo ha sido, lo que significaría que estoy en un bucle. No cojo el primer elemento porque no tiene anterior.
+        if ((hor == camino_hor[l]) && (ver == camino_ver[l])){ //la casilla actual coincide con alguna de las anteriores. En vez de hor o ver podría poner camino_hor[k] y camino_ver[k]
+          if ((camino_hor[k-1] == camino_hor[l-1]) && (camino_ver[k-1] == camino_ver[l-1])){ //la casilla anterior también coincide, estoy dando vueltas
+            aderechas = !aderechas; //cambio el algoritmo
+            }
+          } 
+        }
       if (aderechas){
         if (laberinto[hor][ver].paredes[2] == 0){
           girar_derecha();
