@@ -1,7 +1,7 @@
 // Velocidad
-#define PWM 80 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 150 // Limitacion superior de PWM
-#define MIN_PWM 0 // Limitacion inferior de PWM
+
+#define MAX_PWM 255 // Limitacion superior de PWM
+#define MIN_PWM 30 // Limitacion inferior de PWM
 
 // Pines motor izquierdo + encoder (malito)
 #define ENC1_MOTI 2
@@ -18,6 +18,7 @@
 // PID
 int e = 0, e_ant = 0, e_acum = 0; // error, error anterior y error acumulado
 int pwmi = 0, pwmd = 0; // pwm que pasamos a cada motor
+
 
 #define Kp 1 // P
 #define Ki 0 // I
@@ -56,8 +57,26 @@ void setup() {
 
 void loop() {
 
+  PID_recto(50);
+  delay(200);
+  PID_recto(80);
+  delay(200);
+  PID_recto(150);
+  delay(200);
+  PID_recto(250);
+  delay(100);
+  analogWrite(PWMI, 0);
+  analogWrite(PWMD, 0);
+  delay(5000);
+}
+
+void PID_recto(int PWM){
+
+  // PWM: "base" a los motores (al que queremos que vayan)
+   
   e = CountI - CountD;
 
+  //Reseteamos el e_acum cuando pasa por cero. Sumamos el error al error acumulado
   if (e_ant * e > 0) {
     e_acum += e;
   } else {
@@ -83,15 +102,6 @@ void loop() {
 
   analogWrite(PWMI, pwmi);
   analogWrite(PWMD, pwmd);
-
-  /*
-    Serial.print("CountI:\t");
-    Serial.print(CountI);
-    Serial.print("\t\t");
-    Serial.print("CountD:\t");
-    Serial.println(CountD);
-  */
-
 }
 
 // Funcion encoder motor izquierdo
