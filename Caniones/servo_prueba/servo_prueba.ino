@@ -7,7 +7,7 @@ void setup() {
 }
 
 void loop() {
-  myservo.write(90);                  // sets the servo position according to the scaled value
+  myservo.write(100);                  // sets the servo position according to the scaled value
   delay(15);                           // waits for the servo to get there
 }
 
