@@ -16,8 +16,8 @@ int pared_a;
 
 void loop() {
   // put your main code here, to run repeatedly:
-  dist_i=analogRead(SHARPI);
-  dist_d=analogRead(SHARPO);
+  dist_i= 2076.0/(analogRead(SHARPI)-11.0);
+  dist_d=2076.0/(analogRead(SHARPO)-11.0  );
   pared_a=digitalRead(SHARPA);
   Serial.println("----------");
   Serial.println("Alante:");
