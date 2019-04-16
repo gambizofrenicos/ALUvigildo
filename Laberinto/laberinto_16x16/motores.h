@@ -1,12 +1,12 @@
 // PWM
-int PWM = 150; // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 250 // Limitacion superior de PWM
+#define PWM 95 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 150 // Limitacion superior de PWM
 #define MIN_PWM 40 // Limitacion inferior de PWM
 
 
 // Giro
 #define G90I 130
-#define G90D -113
+#define G90D -100
 
 // Pulsos por vuelta
 #define PPV 180
@@ -26,6 +26,8 @@ void arrancar();
 void avanzar();
 void girar90I();
 void girar90D();
+void girar180();
+void girar90D_coche();
 void para();
 void avanza_mm(float d);
 
@@ -93,6 +95,27 @@ void girar90D() {
   }
 }
 
+void girar180() {
+  CountD = 0;
+  digitalWrite(DIRI, HIGH);
+  digitalWrite(DIRD, HIGH);
+  while (2*G90D < CountD) {
+    analogWrite(PWMI, PWM);
+    analogWrite(PWMD, PWM);
+  }
+}
+
+void girar90D_coche(){
+  CountI = 0;
+  digitalWrite(DIRI, HIGH);
+  digitalWrite(DIRD, HIGH);
+  while (281 > CountI) {
+    Serial.println(CountI);
+    analogWrite(PWMI, PWM);
+    analogWrite(PWMD, 0);
+  }
+}
+
 void para() {
   analogWrite(PWMI, 0);
   analogWrite(PWMD, 0);
@@ -111,9 +134,8 @@ void avanza_mm(float d) {
   error(CountI, CountD);
 	error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
 
-    PWM = PID_mm;
-    pwmi = PWM - PID;
-    pwmd = PWM + PID;
+    pwmi = PID_mm - PID;
+    pwmd = PID_mm + PID;
 
     acotar();
     avanzar();

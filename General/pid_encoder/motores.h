@@ -26,7 +26,6 @@ void arrancar();
 void avanzar();
 void girar90I();
 void girar90D();
-void girar180();
 void girar90D_coche();
 void para();
 void avanza_mm(float d);
@@ -90,16 +89,6 @@ void girar90D() {
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, HIGH);
   while (G90D < CountD) {
-    analogWrite(PWMI, PWM);
-    analogWrite(PWMD, PWM);
-  }
-}
-
-void girar180() {
-  CountD = 0;
-  digitalWrite(DIRI, HIGH);
-  digitalWrite(DIRD, HIGH);
-  while (2*G90D < CountD) {
     analogWrite(PWMI, PWM);
     analogWrite(PWMD, PWM);
   }

@@ -1,4 +1,13 @@
+#include <Math.h>
 #include <EEPROM.h>
+#include "encoder.h"
+#include "pid.h"
+#include "motores.h"
+
+
+#define SHARPI A0
+#define SHARPA 10
+#define SHARPO A1
 
 typedef struct casilla {
   boolean paredes [4]; // 0 si no hay pared en cada casilla y 1 si hay. El orden es izquierda, delante, derecha y detrás
@@ -12,13 +21,15 @@ uint8_t hor = 0;
 uint8_t ver = 0;
 uint8_t pos_act [2] = {0, 0};
 uint8_t pos_pre [2] = {0, 0};
-uint8_t camino_hor [500]; //pueden ser algunas más pero, joder, mucha casualidad sería que fuera tan jodido
-uint8_t camino_ver [500];
-uint8_t camino_hor_def [250]; //también puedo ajustar más, pero como no repito casillas como máximo tendré que recorrerlas todas
-uint8_t camino_ver_def [250];
+uint8_t camino_hor [425]; //pueden ser algunas más pero, joder, mucha casualidad sería que fuera tan jodido
+uint8_t camino_ver [425];
+uint8_t camino_hor_def [175]; //también puedo ajustar más, pero como no repito casillas como máximo tendré que recorrerlas todas
+uint8_t camino_ver_def [175];
 uint8_t last_camino [2]; // Es la última casilla en la cual he dejado un camino sin visitar, a la que voy cuando termino el camino actual
 uint8_t ori; //0 si girado hacia la izquierda, 2 si girado hacia la derecha, 1 si va hacia adelante y 3 si va hacia atrás
 boolean paredes_sensor [4]; //leídas con los sensores, es decir, desde el sistema de referencia del robot. La pared de atrás en teoría la conozco del movimiento anterior.
+float dist_i;
+float dist_d;
 boolean aderechas; //Para los bucles, en un principio vamos a derechas pero si nos estamos quedando atrancados en un bucle pasamos a ir a izquierdas.
 uint8_t i = 0; //siempre te hace falta un buen índice
 uint8_t j = 0; //este es para añadir nuevos valores a los arrays que guardan el camino
@@ -27,7 +38,15 @@ uint8_t l = 0;
 boolean laberinto_resuelto = 0; //esta deberé leer en memoria ¿en el setup? para actualizarla por si la he guardado en un intento anterior y sí he resuelto el laberinto
                                 //si leo y guardo en memoria igual un boolean no es lo mejor
 void leer_paredes(){
-  //movidas de leer con los sensores, hay que tener especial cuidado con leer la pared de enfrente ya que el sensor es digital
+  dist_i = 2076.0 / (analogRead(SHARPI) - 11.0);
+  dist_d = 2076.0 / (analogRead(SHARPO) - 11.0);
+  if (dist_i < 15){
+    paredes_sensor[0] = 1;
+    }
+  if (dist_d < 15){ 
+    paredes_sensor[2] = 1;
+    }
+  paredes_sensor[1] = !(digitalRead(SHARPA));
   //ahora lo que hago es definir la posición trasera a partir de la anterior conocida. La única excepción es (creo) el primer caso, en el que no tengo posición anterior
   if ((hor == 0)&&(ver == 0)){
     paredes_sensor[3] = 0;
@@ -70,20 +89,29 @@ void actualizar_paredes(){
    }
   laberinto[hor][ver].completo = 1;
   }
-  void girar_derecha(){
-    
-    }
-  void girar_izquierda(){
-    
-    }
-  void mover_recto(){
-    
-    }
-  void dalavuelta_joder(){
-    
-    }
+  
   void setup() {
-  //movidas de pines, loco
+  /* Serial */
+  Serial.begin(9600);
+
+  /* Motores */
+  pinMode(DIRD, OUTPUT);
+  pinMode(DIRI, OUTPUT);
+  pinMode(PWMD, OUTPUT);
+  pinMode(PWMI, OUTPUT);
+  pinMode(ENC1_MOTI, INPUT);
+  pinMode(ENC2_MOTI, INPUT);
+  pinMode(ENC1_MOTD, INPUT);
+  pinMode(ENC2_MOTD, INPUT);
+  pinMode(SHARPI, INPUT);
+  pinMode(SHARPO, INPUT);
+  pinMode(SHARPA, INPUT);
+
+  /*Interrupción encoder*/
+  attachInterrupt(0, EncoderEventMotI, CHANGE);
+  attachInterrupt(1, EncoderEventMotD, CHANGE);
+
+  /*Laberinto*/
   ori = 1;
   aderechas = 1;
   camino_hor [j] = 0;
@@ -149,8 +177,8 @@ void loop() {
         }
       if (aderechas){
         if (laberinto[hor][ver].paredes[2] == 0){
-          girar_derecha();
-          mover_recto();
+          girar90D();
+          avanza_mm(150);
           switch (ori) {
             case 1:
               ori = 2;
@@ -170,7 +198,7 @@ void loop() {
             }
           } else {
             if (laberinto[hor][ver].paredes[1] == 0){
-              mover_recto();
+              avanza_mm(168);
               switch (ori) {
                 case 1:
                   ver = ver + 1;
@@ -186,8 +214,8 @@ void loop() {
               }
              } else {
                if (laberinto[hor][ver].paredes[0] == 0){
-                girar_izquierda(); //ojo, tanto mover izquierda como mover derecha se refieren a ir de una casilla a la inmediatamente contigua a ese lado, como si tuviéramos omniruedas. Esto quiere decir que la cantidad de tiempo que me muevo recto es distinto que cuando sigo recto ya que tengo que restar el giro
-                mover_recto();
+                girar90I(); //ojo, tanto mover izquierda como mover derecha se refieren a ir de una casilla a la inmediatamente contigua a ese lado, como si tuviéramos omniruedas. Esto quiere decir que la cantidad de tiempo que me muevo recto es distinto que cuando sigo recto ya que tengo que restar el giro
+                avanza_mm(150);
                 switch (ori) {
                   case 1:
                     ori = 0;
@@ -206,7 +234,8 @@ void loop() {
                     hor = hor + 1;
                   }
                 } else {
-                  dalavuelta_joder(); //para unificar el código lo que quiero es dar la vuelta y mover una casilla recto (no va a haber pared porque solo hago esto si hay pared en las otras 3 direcciones)
+                  girar180();
+                  avanza_mm(150);
                   switch (ori) {
                   case 1:
                     ori = 3;
@@ -229,8 +258,8 @@ void loop() {
               }
       } else { //paso a ir a izquierdas
         if (laberinto[hor][ver].paredes[0] == 0){
-          girar_izquierda();
-          mover_recto();
+          girar90I();
+          avanza_mm(150);
           switch (ori) {
             case 1:
               ori = 0;
@@ -250,7 +279,7 @@ void loop() {
             }
           } else {
             if (laberinto[hor][ver].paredes[1] == 0){
-              mover_recto();
+              avanza_mm(168);
               switch (ori) {
                 case 1:
                   ver = ver + 1;
@@ -266,8 +295,8 @@ void loop() {
               }
              } else {
                if (laberinto[hor][ver].paredes[2] == 0){
-                girar_derecha(); //ojo, tanto mover izquierda como mover derecha se refieren a ir de una casilla a la inmediatamente contigua a ese lado, como si tuviéramos omniruedas. Esto quiere decir que la cantidad de tiempo que me muevo recto es distinto que cuando sigo recto ya que tengo que restar el giro
-                mover_recto();
+                girar90D(); //ojo, tanto mover izquierda como mover derecha se refieren a ir de una casilla a la inmediatamente contigua a ese lado, como si tuviéramos omniruedas. Esto quiere decir que la cantidad de tiempo que me muevo recto es distinto que cuando sigo recto ya que tengo que restar el giro
+                avanza_mm(150);
                 switch (ori) {
                   case 1:
                     ori = 2;
@@ -286,7 +315,8 @@ void loop() {
                     hor = hor - 1;
                   }
                 } else {
-                  dalavuelta_joder(); //para unificar el código lo que quiero es dar la vuelta y mover una casilla recto (no va a haber pared porque solo hago esto si hay pared en las otras 3 direcciones)
+                  girar180();
+                  avanza_mm(150);
                   switch (ori) {
                   case 1:
                     ori = 3;
@@ -333,18 +363,19 @@ void loop() {
       if (camino_hor_def [l+1] > camino_hor_def [l]){ //el camino me dice que debo moverme una casilla en horizontal (hacia la derecha)
         switch (ori) {
           case 1:
-          girar_derecha();
-          mover_recto();
+          girar90D();
+          avanza_mm(150);
           break;
           case 2:
-          mover_recto();
+          avanza_mm(168);
           break;
           case 0: //este caso no va a pasar, muy raro sería que una vez mapeado tenga que darme la vuelta
-          dalavuelta_joder();
+          girar180();
+          avanza_mm(150);
           break;
           case 3:
-          girar_izquierda();
-          mover_recto();
+          girar90I();
+          avanza_mm(150);
           break;
           }
           ori = 2; //si me muevo una casilla hacia la derecha, mi orientación al final será hacia la derecha
@@ -352,18 +383,19 @@ void loop() {
           if (camino_ver_def[l+1] > camino_ver_def[l]){ //tengo que moverme una casilla en vertical (hacia delante)
               switch (ori) {
               case 1:
-              mover_recto();
+              avanza_mm(168);
               break;
               case 2:
-              girar_izquierda();
-              mover_recto();
+              girar90I();
+              avanza_mm(150);
               break;
               case 0: 
-              girar_derecha();
-              mover_recto();
+              girar90D();
+              avanza_mm(150);
               break;
               case 3: //este caso no va a pasar, muy raro sería que una vez mapeado tenga que darme la vuelta
-              dalavuelta_joder();
+              girar180();
+              avanza_mm(150);
               break;
               }
             ori = 1; //si me muevo una casilla hacia delante, mi orientación al final será hacia delante
@@ -371,36 +403,38 @@ void loop() {
               if (camino_hor_def[l+1] < camino_hor_def[l]){ //tengo que moverme una casilla en horizontal (hacia la izquierda)
                 switch (ori) {
                   case 1:
-                  girar_izquierda();
-                  mover_recto();
+                  girar90I();
+                  avanza_mm(150);
                   break;
                   case 2: //este caso no va a pasar, muy raro sería que una vez mapeado tenga que darme la vuelta
-                  dalavuelta_joder();
+                  girar180();
+                  avanza_mm(150);
                   break;
                   case 0: 
-                  mover_recto();
+                  avanza_mm(168);
                   break;
                   case 3:
-                  girar_derecha();
-                  mover_recto();
+                  girar90D();
+                  avanza_mm(150);
                   break;
                 }
             ori = 0; //si me muevo una casilla hacia la izquierda, mi orientación al final será hacia la izquierda
             } else { //el último caso es que me tenga que mover hacia atrás (una casilla en vertical)
                 switch (ori) {
                   case 1: //este caso no va a pasar, muy raro sería que una vez mapeado tenga que darme la vuelta
-                  dalavuelta_joder();
+                  girar180();
+                  avanza_mm(150);
                   break;
                   case 2: 
-                  girar_derecha();
-                  mover_recto();
+                  girar90D();
+                  avanza_mm(150);
                   break;
                   case 0:
-                  girar_izquierda(); 
-                  mover_recto();
+                  girar90I(); 
+                  avanza_mm(150);
                   break;
                   case 3:
-                  mover_recto();
+                  avanza_mm(168);
                   break;
                 }
             ori = 3; //si me muevo una casilla hacia la izquierda, mi orientación al final será hacia la izquierda
