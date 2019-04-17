@@ -19,6 +19,11 @@
 #define PWMD 6
 #define DIRD 8
 
+//Sharps
+#define SHARPI A0
+#define SHARPA 10
+#define SHARPO A1
+
 float pwmi = 0, pwmd = 0; // pwm que pasamos a cada motor
 
 void acotar();
@@ -121,7 +126,7 @@ void para() {
   analogWrite(PWMD, 0);
 }
 
-void avanza_mm(float d) {
+void avanza_mm_lab(float d) {
   int encI = CountI;
   int encD = CountD;
 
@@ -131,11 +136,11 @@ void avanza_mm(float d) {
   //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
   while ((e_mm >= 1) || (e_mm <= -1)){
     
-  error(CountI, CountD);
+  error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
 	error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
 
-    pwmi = PID_mm - PID;
-    pwmd = PID_mm + PID;
+    pwmi = PWM - PID_lab;
+    pwmd = PWM + PID_lab;
 
     acotar();
     avanzar();
