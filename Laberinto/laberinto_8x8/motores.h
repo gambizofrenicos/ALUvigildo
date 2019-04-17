@@ -104,7 +104,7 @@ void girar180() {
   CountD = 0;
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, HIGH);
-  while (2*G90D < CountD) {
+  while (G90D < 2*CountD) {
     analogWrite(PWMI, PWM);
     analogWrite(PWMD, PWM);
   }

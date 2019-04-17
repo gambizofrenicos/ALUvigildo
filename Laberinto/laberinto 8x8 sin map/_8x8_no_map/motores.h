@@ -1,7 +1,7 @@
 // PWM
-#define PWM 95 // PWM "base" a los motores (al que queremos que vayan)
+#define PWM 40 // PWM "base" a los motores (al que queremos que vayan)
 #define MAX_PWM 150 // Limitacion superior de PWM
-#define MIN_PWM 40 // Limitacion inferior de PWM
+#define MIN_PWM 20 // Limitacion inferior de PWM
 
 
 // Giro
@@ -104,7 +104,7 @@ void girar180() {
   CountD = 0;
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, HIGH);
-  while (2*G90D < CountD) {
+  while (G90D < 2*CountD) {
     analogWrite(PWMI, PWM);
     analogWrite(PWMD, PWM);
   }

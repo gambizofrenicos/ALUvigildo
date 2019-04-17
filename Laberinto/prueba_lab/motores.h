@@ -1,12 +1,12 @@
 // PWM
-#define PWM 95 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 150 // Limitacion superior de PWM
-#define MIN_PWM 40 // Limitacion inferior de PWM
+#define PWM 40 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 100 // Limitacion superior de PWM
+#define MIN_PWM 20 // Limitacion inferior de PWM
 
 
 // Giro
 #define G90I 130
-#define G90D -100
+#define G90D -107
 
 // Pulsos por vuelta
 #define PPV 180
@@ -30,6 +30,7 @@ void girar180();
 void girar90D_coche();
 void para();
 void avanza_mm(float d);
+void avanza_mm_lab(float d);
 
 //Arrancar sin caballito
 void arrancar(int e1, int e2) {
@@ -136,6 +137,28 @@ void avanza_mm(float d) {
 
     pwmi = PID_mm - PID;
     pwmd = PID_mm + PID;
+
+    acotar();
+    avanzar();
+  }
+
+}
+
+void avanza_mm_lab(float d) {
+  int encI = CountI;
+  int encD = CountD;
+
+  d = (d/(2*PI*16)) * PPV; //16 mm es el radio de las ruedas de pololu
+  error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
+  
+  //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
+  while ((e_mm >= 1) || (e_mm <= -1)){
+    
+  error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
+  error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
+
+    pwmi = PWM - PID_lab;
+    pwmd = PWM + PID_lab;
 
     acotar();
     avanzar();
