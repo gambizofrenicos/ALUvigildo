@@ -2,7 +2,31 @@
 
 
 
+void calibrar(){
+  for (int i = 0; i < 200; i++)  // make the calibration take about 10 seconds
+  {
+    qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
+  }
 
+  // print the calibration minimum values measured when emitters were on
+  Serial.begin(9600);
+  for (int i = 0; i < NUM_SENSORS; i++)
+  {
+    Serial.print(qtrrc.calibratedMinimumOn[i]);
+    Serial.print(' ');
+  }
+  Serial.println();
+
+  // print the calibration maximum values measured when emitters were on
+  for (int i = 0; i < NUM_SENSORS; i++)
+  {
+    Serial.print(qtrrc.calibratedMaximumOn[i]);
+    Serial.print(' ');
+  }
+  Serial.println();
+  Serial.println();
+  delay(1000);
+}
 
 void leer_linea()
 {
