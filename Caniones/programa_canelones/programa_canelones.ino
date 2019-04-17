@@ -1,5 +1,6 @@
 #include <Servo.h>
 #include <QTRSensors.h>
+#include <Math.h>
 #include "pid.h"
 #include "encoder.h"
 #include "motores.h"
@@ -19,17 +20,34 @@ Servo servoI;  // create servo object to control a servo
 Servo servoC;  // create servo object to control a servo
 Servo servoD;  // create servo object to control a servo
 
+/*********VARIABLES DEL FINAL DE CARRERA****************/
+#define FDC 13
+
 /*********VARIABLES DEL PROGRAMA****************/
 int fase = 0;
 
 void setup() {
+  //Incluimos los motores+encoders
+  inicializar_motores();
+  
   //Incluimos los servos
   servoI.attach(9);
   servoC.attach(10);
   servoD.attach(11);
 
+  //Los detacheamos para poder moverlos
+  servoI.detach();
+  servoC.detach();
+  servoD.detach();
+
+  //Iniciamos servos
+  servoC.write(70);
+
+  //Incluimos el final de carrera
+  pinMode(FDC, INPUT);
+
   //Calibramos siguelineas
-  
+  calibrar();
 
   //Empezamos el programa en la fase 1 (leer la linea recta)
   fase = 1;
@@ -50,13 +68,15 @@ void loop() {
     horiz_actual = detectar_horizontal();
     if (horiz_actual == 1 && horiz_anterior == 0) {
       para();
+      Serial.println("FLANCO 1");
       disparar('C');
       fase=2;
-      Serial.println("FLANCO 1");
+
     }
     horiz_anterior = horiz_actual;
   }
-
+  
+  /****FASE 2****/
   else if (fase==2){
     leer_linea();
     //Avanzar recto el roboti
@@ -88,17 +108,12 @@ void loop() {
   }
   
   else if (fase==4){
-    //Avanzar recto el roboti unos 60mm hasta la torre
-    
-    //Cuando detecta el final de carrera para definitivamente
-    horiz_actual = detectar_horizontal();
-    if (horiz_actual == 1 && horiz_anterior == 0) {
-      para();
-      disparar('D');
-      fase=3;
-      Serial.println("FLANCO 2");
+    //Avanzar recto hasta que toca final de carrera
+    while(!digitalRead(FDC)){
+      avanzar_encoders();
     }
-    horiz_anterior = horiz_actual;
+    para();
+    
   }
 
 

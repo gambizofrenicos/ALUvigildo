@@ -21,14 +21,36 @@
 
 float pwmi = 0, pwmd = 0; // pwm que pasamos a cada motor
 
+void inicializar_motores();
 void acotar();
 void arrancar();
 void avanzar();
+void avanzar_encoders();
 void girar90I();
 void girar90D();
 void girar90D_coche();
 void para();
 void avanza_mm(float d);
+
+
+//Inicializar motores y encoders
+void inicializar_motores() {
+  // Inicializamos motor I
+  pinMode(ENC1_MOTI, INPUT);
+  pinMode(ENC2_MOTI, INPUT);
+  pinMode(PWMI, OUTPUT);
+  pinMode(DIRI, OUTPUT);
+
+  // Inicializamos motor D
+  pinMode(ENC1_MOTD, INPUT);
+  pinMode(ENC2_MOTD, INPUT);
+  pinMode(PWMD, OUTPUT);
+  pinMode(DIRD, OUTPUT);
+
+  // initialize hardware interrupts
+  attachInterrupt(0, EncoderEventMotI, CHANGE);
+  attachInterrupt(1, EncoderEventMotD, CHANGE);
+}
 
 //Arrancar sin caballito
 void arrancar(int e1, int e2) {
@@ -74,6 +96,17 @@ void avanzar() {
   analogWrite(PWMD, pwmd);
 }
 
+void avanzar_encoders() {
+  error(CountI, CountD);
+
+  pwmi = PWM - PID;
+  pwmd = PWM + PID;
+
+  acotar();
+
+  avanzar();
+}
+
 void girar90I() {
   CountD = 0;
   digitalWrite(DIRI, LOW);
@@ -94,7 +127,7 @@ void girar90D() {
   }
 }
 
-void girar90D_coche(){
+void girar90D_coche() {
   CountI = 0;
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, HIGH);
@@ -114,14 +147,14 @@ void avanza_mm(float d) {
   int encI = CountI;
   int encD = CountD;
 
-  d = (d/(2*PI*16)) * PPV; //16 mm es el radio de las ruedas de pololu
-  error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
-  
+  d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
+  error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
+
   //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
-  while ((e_mm >= 1) || (e_mm <= -1)){
-    
-  error(CountI, CountD);
-	error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
+  while ((e_mm >= 1) || (e_mm <= -1)) {
+
+    error(CountI, CountD);
+    error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
 
     pwmi = PID_mm - PID;
     pwmd = PID_mm + PID;
