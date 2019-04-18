@@ -1,12 +1,12 @@
 // PWM
-#define PWM 95 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 150 // Limitacion superior de PWM
+#define PWM 40 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 100 // Limitacion superior de PWM
 #define MIN_PWM 40 // Limitacion inferior de PWM
 
 
 // Giro
 #define G90I 130
-#define G90D -100
+#define G90D -115
 
 // Pulsos por vuelta
 #define PPV 180
@@ -118,13 +118,33 @@ void girar90I() {
 }
 
 void girar90D() {
+
   CountD = 0;
-  digitalWrite(DIRI, HIGH);
-  digitalWrite(DIRD, HIGH);
-  while (G90D < CountD) {
-    analogWrite(PWMI, PWM);
-    analogWrite(PWMD, PWM);
+
+  error(G90D, CountD);
+
+  while (e) {
+    if (e < 0) {
+      digitalWrite(DIRI, HIGH);
+      digitalWrite(DIRD, HIGH);
+    } else if (e > 0) {
+      digitalWrite(DIRI, LOW);
+      digitalWrite(DIRD, LOW);
+    }
+    error(G90D, CountD);
+
+    pwmi = PID;
+    pwmd = PID;
+
+    acotar();
+    
+    analogWrite(PWMI, pwmi);
+    analogWrite(PWMD, pwmd);
+
+    delay(20);
+
   }
+
 }
 
 void girar90D_coche() {
