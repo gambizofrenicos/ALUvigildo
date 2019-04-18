@@ -10,8 +10,6 @@ unsigned int n = 1; // cuenta el numero de mediciones
 long duration = 0;
 float media_max = 0, media_min = 1023;
 
-int t = 0;
-
 void setup()
 {
   Serial.begin(9600);
