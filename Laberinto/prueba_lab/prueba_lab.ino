@@ -41,23 +41,23 @@ void loop() {
     //Giro dcha
    // para();
    // delay(1000);
-    avanza_mm_lab(40);
+   // avanza_mm_lab(40);
   //  para();
   //  delay(1000);
     girar90D();
-   // para();
-   // delay(1000);
+    para();
+    delay(500);
     avanza_mm_lab(50);
   } else if (dist_i > 15){
     //Giro Izda
   //  para();
   //  delay(1000);
-    avanza_mm_lab(40);
+   // avanza_mm_lab(40);
    // para();
    // delay(1000);
     girar90I();
-   // para();
-   // delay(1000);
+    para();
+    delay(500);
     avanza_mm_lab(50);
   } else if (!digitalRead(SHARPA)){
     //Media vuelta
@@ -65,8 +65,8 @@ void loop() {
    // delay(1000);
     girar90D();
     girar90D();
-   // para();
-   // delay(1000);
+    para();
+    delay(500);
     avanza_mm_lab(50);
   } else {
     error(dist_i, dist_d);

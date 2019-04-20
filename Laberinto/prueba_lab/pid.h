@@ -6,9 +6,9 @@
 #define  Ki_g 0 // I
 #define  Kd_g 0 // D
 
-#define  Kp_lab  8 // P
+#define  Kp_lab  5 // P
 #define  Ki_lab  0 // I
-#define  Kd_lab  3 // D
+#define  Kd_lab  0 // D
 
 #define  Kp_mm  1
 #define  Ki_mm  0

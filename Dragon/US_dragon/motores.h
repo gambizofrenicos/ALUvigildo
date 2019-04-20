@@ -1,5 +1,5 @@
 // PWM
-#define PWM 50 // PWM "base" a los motores (al que queremos que vayan)
+#define PWM 40 // PWM "base" a los motores (al que queremos que vayan)
 #define MAX_PWM 250 // Limitacion superior de PWM
 #define MIN_PWM 40 // Limitacion inferior de PWM
 
@@ -31,6 +31,7 @@ void girar90D();
 void girar90D_coche();
 void para();
 void avanza_mm(float d);
+void girodrag(char dir);
 
 
 //Inicializar motores y encoders
@@ -135,10 +136,10 @@ void girar90I() {
 
     error(G90I, (CountD - CountI) / 2);
 
-   /* Serial.print("e_I:\t");
-    Serial.print(e);
-    Serial.print("\tPID_I:\t");
-    Serial.println(PID_g);*/
+    /* Serial.print("e_I:\t");
+      Serial.print(e);
+      Serial.print("\tPID_I:\t");
+      Serial.println(PID_g);*/
 
 
   }
@@ -170,10 +171,10 @@ void girar90D() {
 
     error(G90D, (CountD - CountI) / 2);
 
-  /*  Serial.print("e_D:\t");
-    Serial.print(e);
-    Serial.print("\tPID_D:\t");
-    Serial.println(PID_g);*/
+    /*  Serial.print("e_D:\t");
+      Serial.print(e);
+      Serial.print("\tPID_D:\t");
+      Serial.println(PID_g);*/
 
 
 
@@ -217,4 +218,17 @@ void avanza_mm(float d) {
     avanzar();
   }
 
+}
+
+void girodrag(char dir) {
+  if (dir == 'D') {
+    digitalWrite(DIRI, HIGH);
+    digitalWrite(DIRD, HIGH);
+  } else if (dir == 'I') {
+    digitalWrite(DIRI, LOW);
+    digitalWrite(DIRD, LOW);
+  }
+
+  analogWrite(PWMI, PWM);
+  analogWrite(PWMD, PWM);
 }
