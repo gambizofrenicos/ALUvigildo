@@ -9,7 +9,9 @@
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
 
+/****BANDERAS DE PARADA Y SALIDA****/
 int start = 0;
+bool parada = false;
 
 /* QTR-8RC*/
 // Configuracion inicial del sensor
@@ -69,6 +71,7 @@ void loop() {
   }
 
   if (sensores_detectando) e_line = e_line / sensores_detectando;
+
   if (e_line == 3) out = 1;
   else if (e_line == -3) out = -1;
 
@@ -83,36 +86,27 @@ void loop() {
     e_line = -3;
   }
 
-  error_line();
+  error_line(); //Gestiona el error
 
-  pwmd = PWM_line - PID_line;
-  pwmi = PWM_line + PID_line;
-
-  if (!start && DETECTA_META) {
-    start = 1;
+  if (!parada) {
+    pwmd = PWM_line - PID_line;
+    pwmi = PWM_line + PID_line;
+    acotar();
   }
-
-  else if ((start == 1) && !(DETECTA_META)) {
-    start = 2;
-  }
-
-  else if ((start == 2) && DETECTA_META) {
-    para();
+  else {
     pwmd = 0;
     pwmi = 0;
-    start = 0;
   }
 
-  acotar();
 
-  Serial.print("PWMs:  ");
-  Serial.print(pwmd); Serial
-  .print("\t"); Serial.println(pwmi);
+  deteccion_meta();
+
+  Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
   Serial.print("out:  "); Serial.println(out);
   Serial.print("e_line:  "); Serial.println(e_line);
   Serial.print("start:  "); Serial.println(start);
   Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
-  delay(200);
+  delay(500);
 
   e_line = 0;
   sensores_detectando = 0;
@@ -122,45 +116,9 @@ void loop() {
   /*digitalWrite(DIRD, LOW);
     digitalWrite(DIRI, HIGH);
     analogWrite(PWMD, pwmd);
-    analogWrite(PWMI, pwmi);
-    //}
-
-
-    /* Calculo de las velocidades de cada motor */
-  /*
-     e < 0 --> girar a derecha --> vDer aumenta --> como PID<0 (porque e<0) --> vDer = VNOM - PID%56 (para sumar o restar de 0 a 55)
-     e > 0 --> girar a izquierda --> vDer disminuye --> como PID>0 (porque e>0) --> vDer = VNOM - PID%56 (para sumar o restar de 0 a 55)
-  */
-
-
-  /* Asignacion del error anterior y suma del error acumulado */
+    analogWrite(PWMI, pwmi);*/
 }
 
-void calibracion() {
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH); // encender LED del Arduino
-  for (int i = 0; i < 400; i++) {
-    qtrrc.calibrate();
-  }
-  digitalWrite(13, LOW); // apagar el LED
 
-  // print the calibration minimum values measured when emitters were on
-  //Serial.begin(9600);
-  for (int i = 0; i < NUM_SENSORS; i++)
-  {
-    Serial.print(qtrrc.calibratedMinimumOn[i]);
-    Serial.print(' ');
-  }
-  Serial.println();
 
-  // print the calibration maximum values measured when emitters were on
-  for (int i = 0; i < NUM_SENSORS; i++)
-  {
-    Serial.print(qtrrc.calibratedMaximumOn[i]);
-    Serial.print(' ');
-  }
-  Serial.println();
-  Serial.println();
-  delay(500);
-}
 
