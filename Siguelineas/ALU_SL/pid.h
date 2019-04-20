@@ -11,7 +11,7 @@
 #define Ki_mm 0
 
 #define Kp_line 20
-#define Kd_line 0
+#define Kd_line 1
 #define Ki_line 0
 
 #define PID Kp*e+Kd*(e-e_ant)+Ki*e_acum // calculo del PID con una macro
