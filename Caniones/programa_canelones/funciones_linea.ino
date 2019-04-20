@@ -14,6 +14,28 @@ int out = 0;
 float errores[NUM_SENSORS] = { -3.0, -2.0, -1.0, 1.0, 2.0, 3.0}; // valor del error asignado a cada sensor. Las alitas no suman error
 
 
+/****************************************************************************************************/
+void salida(){
+  while(fase==0){ //While para esperar a que se pulse
+    //Esperamos a que sea 1
+    if(digitalRead(FDC)==1) {
+      fase=1;
+      Serial.println("PULSAO");
+    }
+    delay(10);
+  }
+
+  while(fase==1){ //While para esperar a que se deje de pulsar
+    if(digitalRead(FDC)==0){
+      fase=0;
+      Serial.println("DESPULSAO");
+    }
+    delay(10);
+  }
+}
+
+/****************************************************************************************************/
+
 void calibrar(){
   for (int i = 0; i < 200; i++)  // make the calibration take about 10 seconds
   {
@@ -39,6 +61,10 @@ void calibrar(){
   Serial.println();
   delay(1000);
 }
+
+
+/****************************************************************************************************/
+
 
 void leer_linea()
 {
@@ -103,6 +129,8 @@ void leer_linea()
 
 
 
+
+/****************************************************************************************************/
 
 int horizontal=0;
 int detectar_horizontal(){

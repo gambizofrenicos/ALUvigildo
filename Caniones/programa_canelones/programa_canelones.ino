@@ -30,27 +30,17 @@ void setup() {
   //Incluimos los motores+encoders
   inicializar_motores();
   
-  //Incluimos los servos
-  servoI.attach(9);
-  servoC.attach(10);
-  servoD.attach(11);
-
-  //Los detacheamos para poder moverlos
-  servoI.detach();
-  servoC.detach();
-  servoD.detach();
-
-  //Iniciamos servos
-  servoC.write(70);
-
   //Incluimos el final de carrera
   pinMode(FDC, INPUT);
 
   //Calibramos siguelineas
   calibrar();
 
-  //Empezamos el programa en la fase 1 (leer la linea recta)
-  fase = 1;
+  //Metodo de salida (pulsando el FDC con la tabla)
+  salida();
+
+  delayMicroseconds(500000); //Esperamos medio segundo despues de que se de la salida
+  fase=1;
 }
 
 int horiz_actual = 0;
