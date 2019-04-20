@@ -36,7 +36,6 @@ int out = 0;
 
 /* CONSTANTES */
 #define VALOR_UMBRAL 500 // Valor umbral que determina si hay linea o no (hay que comprobar)
-#define VNOM 200 // velocidad nominal de los motores
 
 /* PID */
 float errores[NUM_SENSORS] = { -3.0, -2.0, -1.0, 1.0, 2.0, 3.0, 0.0, 0.0}; // valor del error asignado a cada sensor. Las alitas no suman error
@@ -95,40 +94,44 @@ void loop() {
   if (!parada) {
     pwmd = PWM_line - PID_line;
     pwmi = PWM_line + PID_line;
-    
+
     //Quitamos el valor de reset curva al pwm
-    pwmd+=reset_curva;
-    pwmi+=reset_curva;
-    acotar();
+    // pwmd += reset_curva;
+    // pwmi += reset_curva;
+    //acotar();
   }
-  
+
   else {
     pwmd = 0;
     pwmi = 0;
   }
 
-  
-  deteccion_cruce();
-  deteccion_curva();
-  deteccion_meta();
+  acotar();
+  //  deteccion_cruce();
+  //  deteccion_curva();
+  //  deteccion_meta();
+  //
+  //  reset_curva += ((CountI + CountD) / 2000);
+  //  CountD=0;
+  //  CountI=0;
 
 
   Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
   Serial.print("out:  "); Serial.println(out);
   Serial.print("e_line:  "); Serial.println(e_line);
   Serial.print("start:  "); Serial.println(start);
-//  Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
-  delay(500);
+  Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
+  //delay(500);
 
   e_line = 0;
   sensores_detectando = 0;
 
   /* Mover los motores */
 
-  /*digitalWrite(DIRD, LOW);
-    digitalWrite(DIRI, HIGH);
-    analogWrite(PWMD, pwmd);
-    analogWrite(PWMI, pwmi);*/
+  digitalWrite(DIRD, LOW);
+  digitalWrite(DIRI, HIGH);
+  analogWrite(PWMD, pwmd);
+  analogWrite(PWMI, pwmi);
 }
 
 
