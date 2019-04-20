@@ -5,7 +5,7 @@
 #include <Math.h>
 
 #define PWM_line 60
-#define DETECTA_META sensorValues[7] > VALOR_UMBRAL
+#define DETECTA_META sensor7Values[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
 
@@ -96,8 +96,8 @@ void loop() {
     pwmi = PWM_line + PID_line;
 
 //    Quitamos el valor de reset curva al pwm
-//    pwmd += reset_curva;
-//    pwmi += reset_curva;
+    pwmd += reset_curva;
+    pwmi += reset_curva;
     acotar();
   }
 
@@ -107,12 +107,12 @@ void loop() {
   }
 
   deteccion_cruce();
-//  deteccion_curva();
+  deteccion_curva();
   deteccion_meta();
 
-//  reset_curva += ((CountI + CountD) / 2000);
-//  CountD = 0;
-//  CountI = 0;
+  reset_curva += ((CountI + CountD) / 20);
+  CountD = 0;
+  CountI = 0;
 
 
   //  Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
@@ -132,8 +132,3 @@ void loop() {
   analogWrite(PWMD, pwmd);
   analogWrite(PWMI, pwmi);
 }
-
-
-
-
-
