@@ -30,14 +30,13 @@ void loop() {
 
 
   // EMITIENDO DE 1
- digitalWrite(PIN_TRIGGER_1, LOW);
+  digitalWrite(PIN_TRIGGER_1, LOW);
   delayMicroseconds(5);
   digitalWrite(PIN_TRIGGER_1, HIGH);
   delayMicroseconds(10);
   digitalWrite(PIN_TRIGGER_1, LOW);
 
   // LEE DE 2
-  
   digitalWrite(PIN_TRIGGER_2, LOW);
   delayMicroseconds(5);
   digitalWrite(PIN_TRIGGER_2, HIGH);
@@ -46,11 +45,11 @@ void loop() {
 
   pinMode(PIN_ECHO_2, INPUT);
   duration = pulseIn(PIN_ECHO_2, HIGH);
-  if(duration != 42 && media > duration){
+  if (duration != 42 && media > duration) {
     media = duration;
   }
   Serial.print(media);
   Serial.print(" ");
   Serial.println(duration);
-  
+
 }
