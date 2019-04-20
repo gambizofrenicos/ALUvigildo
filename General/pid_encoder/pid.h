@@ -1,16 +1,21 @@
-#define  Kp 0.5 // P
-#define  Ki 0.1 // I
+#define  Kp 2 // P
+#define  Ki 0 // I
 #define  Kd 0 // D
+
+#define  Kp_g 0.1 // P
+#define  Ki_g 0 // I
+#define  Kd_g 0 // D
 
 #define  Kp_lab  10 // P
 #define  Ki_lab  0 // I
 #define  Kd_lab  2 // D
 
 #define  Kp_mm  1
-#define  Kd_mm  0
 #define  Ki_mm  0
+#define  Kd_mm  0
 
 #define  PID Kp*e+Kd*(e-e_ant)+Ki*e_acum // calculo del PID con una macro
+#define  PID_g Kp_g*e+Kd_g*(e-e_ant)+Ki_g*e_acum // calculo del PID con una macro
 #define  PID_mm  Kp_mm*e_mm+Kd_mm*(e_mm-e_ant_mm)+Ki_mm*e_acum_mm // calculo del PID con una macro
 #define  PID_lab  Kp_lab*e+Kd_lab*(e-e_ant)+Ki_lab*e_acum // calculo del PID con una macro
 
