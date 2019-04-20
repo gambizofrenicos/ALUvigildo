@@ -78,22 +78,76 @@ void avanzar() {
 
 void girar90I() {
   CountD = 0;
-  digitalWrite(DIRI, LOW);
-  digitalWrite(DIRD, LOW);
-  while (G90I > CountD) {
-    analogWrite(PWMI, PWM);
-    analogWrite(PWMD, PWM);
+  CountI = 0;
+
+  e = 0;
+
+  error(G90I, (CountD - CountI) / 2);
+
+  while (e) {
+    if (e > 0) {
+      digitalWrite(DIRI, LOW);
+      digitalWrite(DIRD, LOW);
+    } else if (e < 0) {
+      digitalWrite(DIRI, HIGH);
+      digitalWrite(DIRD, HIGH);
+    }
+
+
+    pwmi = PWM + PID_g;
+    pwmd = PWM + PID_g;
+
+    acotar();
+
+    analogWrite(PWMI, pwmi);
+    analogWrite(PWMD, pwmd);
+
+    error(G90I, (CountD - CountI) / 2);
+
+   /* Serial.print("e_I:\t");
+    Serial.print(e);
+    Serial.print("\tPID_I:\t");
+    Serial.println(PID_g);*/
+
+
   }
 }
 
 void girar90D() {
+
   CountD = 0;
-  digitalWrite(DIRI, HIGH);
-  digitalWrite(DIRD, HIGH);
-  while (G90D < CountD) {
-    analogWrite(PWMI, PWM);
-    analogWrite(PWMD, PWM);
+  CountI = 0;
+
+  error(G90D, (CountD - CountI) / 2);
+
+  while (e) {
+    if (e < 0) {
+      digitalWrite(DIRI, HIGH);
+      digitalWrite(DIRD, HIGH);
+    } else if (e > 0) {
+      digitalWrite(DIRI, LOW);
+      digitalWrite(DIRD, LOW);
+    }
+
+    pwmi = PWM - PID_g;
+    pwmd = PWM - PID_g;
+
+    acotar();
+
+    analogWrite(PWMI, pwmi);
+    analogWrite(PWMD, pwmd);
+
+    error(G90D, (CountD - CountI) / 2);
+
+  /*  Serial.print("e_D:\t");
+    Serial.print(e);
+    Serial.print("\tPID_D:\t");
+    Serial.println(PID_g);*/
+
+
+
   }
+
 }
 
 void girar180() {
