@@ -29,7 +29,7 @@ int fase = 0;
 void setup() {
   //Incluimos los motores+encoders
   inicializar_motores();
-  
+
   //Incluimos el final de carrera
   pinMode(FDC, INPUT);
 
@@ -38,9 +38,10 @@ void setup() {
 
   //Metodo de salida (pulsando el FDC con la tabla)
   salida();
+  Serial.println("CALIBRAR");
 
-  delayMicroseconds(500000); //Esperamos medio segundo despues de que se de la salida
-  fase=1;
+  delayMicroseconds(5000000); //Esperamos medio segundo despues de que se de la salida
+  fase = 1;
 }
 
 int horiz_actual = 0;
@@ -51,59 +52,71 @@ void loop() {
   /****FASE 1****/
   //Leemos la linea para ir en linea recta y cuando se pare, paramos
   if (fase == 1) {
-    leer_linea();
+    seguir_linea();
     //Aqui ira la funcion de seguir linea
 
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
     if (horiz_actual == 1 && horiz_anterior == 0) {
       para();
-      Serial.println("FLANCO 1");
+      delay(1000);
       disparar('C');
-      fase=2;
+      para();
+      delay(1000);
+      Serial.println("FLANCO 1");
+      fase = 2;
 
     }
     horiz_anterior = horiz_actual;
   }
-  
-  /****FASE 2****/
-  else if (fase==2){
-    leer_linea();
-    //Avanzar recto el roboti
 
+  /****FASE 2****/
+  else if (fase == 2) {
+    qtrrc.read(sensorValues);
+    //Avanzar recto el roboti
+    CountI = 0; CountD = 0;
+    avanzar_encoders();
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
     if (horiz_actual == 1 && horiz_anterior == 0) {
       para();
+      delay(1000);
       disparar('D');
-      fase=3;
+      para();
+      delay(1000);
+      fase = 3;
       Serial.println("FLANCO 2");
     }
     horiz_anterior = horiz_actual;
   }
-  
-  else if (fase==3){
-    leer_linea();
-    //Avanzar recto el roboti
 
+  else if (fase == 3) {
+    qtrrc.read(sensorValues);
+    //Avanzar recto el roboti
+    CountI=0; CountD=0;
+    avanzar_encoders();
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
     if (horiz_actual == 1 && horiz_anterior == 0) {
       para();
+      delay(1000);
       disparar('I');
-      fase=4;
+      para();
+      delay(1000);
+      fase = 4;
       Serial.println("FLANCO 3");
     }
     horiz_anterior = horiz_actual;
   }
-  
-  else if (fase==4){
+
+  else if (fase == 4) {
     //Avanzar recto hasta que toca final de carrera
-    while(!digitalRead(FDC)){
+    CountI=0; CountD=0;
+    while (!digitalRead(FDC)) {
       avanzar_encoders();
     }
     para();
-    
+
   }
 
 

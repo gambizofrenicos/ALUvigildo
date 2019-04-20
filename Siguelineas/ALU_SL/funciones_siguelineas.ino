@@ -29,22 +29,22 @@ void calibracion() {
 /***********************************************************************/
 
 void deteccion_meta() {
-  if (!start && DETECTA_META) {
+  if (!start && DETECTA_META && !out) {
     start = 1;
   }
 
-  else if ((start == 1) && !(DETECTA_META)) {
+  else if ((start == 1) && !(DETECTA_META) && !out) {
     start = 2;
   }
 
-  if ((start == 2) && DETECTA_META) {
+  if ((start == 2) && DETECTA_META && !out) {
     parada = true;
   }
 }
 
 /***********************************************************************/
 bool after_cruce = false;
-bool sobrecurva_aftcruce=false;
+bool sobrecurva_aftcruce = false;
 
 void deteccion_curva() {
   //El sensor lee una marca de curva
@@ -52,14 +52,14 @@ void deteccion_curva() {
     reset_curva = 0;
   }
   //El sensor esta leyendo el cruce, no es una curva
-  else if (DETECTA_CURVA && after_cruce){
+  else if (DETECTA_CURVA && after_cruce) {
     sobrecurva_aftcruce = true;
   }
-  
+
   //El sensor ya ha salido del cruce y resetea las variables pertinentes
-  else if (!DETECTA_CURVA && sobrecurva_aftcruce){
+  else if (!DETECTA_CURVA && sobrecurva_aftcruce) {
     sobrecurva_aftcruce = false;
-    after_cruce=false;
+    after_cruce = false;
   }
 }
 
@@ -79,7 +79,7 @@ void deteccion_cruce() {
 
   if (horizontal) { //Cuando haya detectado la horizontal
     start = 0; //Reiniciamos la meta (alitaD)
-    after_cruce=true;//Y aaqui
+    after_cruce = true; //Y aaqui
   }
 }
 

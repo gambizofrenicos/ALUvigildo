@@ -4,7 +4,7 @@
 #include <QTRSensors.h>
 #include <Math.h>
 
-#define PWM_line 90
+#define PWM_line 60
 #define DETECTA_META sensorValues[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
@@ -26,7 +26,7 @@ float reset_curva = 0; //Lo que le sumamos al pwm base (cuando es 0 va lento)
 //La alita I (cambios de curvatura) es el pin 10.
 //La alita D (start/end) es el pin 13.
 QTRSensorsRC qtrrc((unsigned char[]) {
-  A0, A1, A2, A3, A4, A5, 10, 13
+  A0, A1, A2, A3, A4, A5, 10, 9
 }, NUM_SENSORS, TIMEOUT, EMITTER_PIN); // Sensor QRT y pines asociados
 unsigned int sensorValues[NUM_SENSORS]; // Array para guardar los valores de los sensores
 
@@ -95,10 +95,10 @@ void loop() {
     pwmd = PWM_line - PID_line;
     pwmi = PWM_line + PID_line;
 
-    //Quitamos el valor de reset curva al pwm
-    // pwmd += reset_curva;
-    // pwmi += reset_curva;
-    //acotar();
+//    Quitamos el valor de reset curva al pwm
+//    pwmd += reset_curva;
+//    pwmi += reset_curva;
+    acotar();
   }
 
   else {
@@ -106,28 +106,27 @@ void loop() {
     pwmi = 0;
   }
 
-  acotar();
-  //  deteccion_cruce();
-  //  deteccion_curva();
-  //  deteccion_meta();
-  //
-  //  reset_curva += ((CountI + CountD) / 2000);
-  //  CountD=0;
-  //  CountI=0;
+  deteccion_cruce();
+//  deteccion_curva();
+  deteccion_meta();
+
+//  reset_curva += ((CountI + CountD) / 2000);
+//  CountD = 0;
+//  CountI = 0;
 
 
-  Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
-  Serial.print("out:  "); Serial.println(out);
-  Serial.print("e_line:  "); Serial.println(e_line);
-  Serial.print("start:  "); Serial.println(start);
-  Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
-  //delay(500);
+  //  Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
+  //  Serial.print("out:  "); Serial.println(out);
+  //  Serial.print("e_line:  "); Serial.println(e_line);
+//    Serial.print("start:  "); Serial.println(start);
+//    Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
+  //  delay(500);
 
   e_line = 0;
   sensores_detectando = 0;
 
   /* Mover los motores */
-
+//
   digitalWrite(DIRD, LOW);
   digitalWrite(DIRI, HIGH);
   analogWrite(PWMD, pwmd);

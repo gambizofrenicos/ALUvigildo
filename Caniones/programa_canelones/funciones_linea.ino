@@ -1,4 +1,4 @@
-#define PWM_line 80
+#define PWM_line 60
 #define DETECTA_META sensorValues[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
@@ -15,19 +15,19 @@ float errores[NUM_SENSORS] = { -3.0, -2.0, -1.0, 1.0, 2.0, 3.0}; // valor del er
 
 
 /****************************************************************************************************/
-void salida(){
-  while(fase==0){ //While para esperar a que se pulse
+void salida() {
+  while (fase == 0) { //While para esperar a que se pulse
     //Esperamos a que sea 1
-    if(digitalRead(FDC)==1) {
-      fase=1;
+    if (digitalRead(FDC) == 1) {
+      fase = 1;
       Serial.println("PULSAO");
     }
     delay(10);
   }
 
-  while(fase==1){ //While para esperar a que se deje de pulsar
-    if(digitalRead(FDC)==0){
-      fase=0;
+  while (fase == 1) { //While para esperar a que se deje de pulsar
+    if (digitalRead(FDC) == 0) {
+      fase = 0;
       Serial.println("DESPULSAO");
     }
     delay(10);
@@ -36,7 +36,7 @@ void salida(){
 
 /****************************************************************************************************/
 
-void calibrar(){
+void calibrar() {
   for (int i = 0; i < 200; i++)  // make the calibration take about 10 seconds
   {
     qtrrc.calibrate();       // reads all sensors 10 times at 2500 us per read (i.e. ~25 ms per call)
@@ -66,13 +66,16 @@ void calibrar(){
 /****************************************************************************************************/
 
 
-void leer_linea()
+void seguir_linea()
 {
-/* Calculo del error */
-
+  /* Calculo del error */
   qtrrc.read(sensorValues);
 
-  for (int i = 0; i <NUM_SENSORS; i++) {
+  /*else if (DETECTA_CURVA) {
+    //Hay curva
+    }
+    else {*/
+  for (int i = 0; i < (NUM_SENSORS); i++) {
     if (sensorValues[i] > VALOR_UMBRAL) {
       // Si el sensor supera un cierto umbral, se suma su error asignado
       e_line += errores[i];
@@ -81,50 +84,38 @@ void leer_linea()
     }
   }
 
-  e_line = e_line / sensores_detectando;
+  if (sensores_detectando) e_line = e_line / sensores_detectando;
+
   if (e_line == 3) out = 1;
   else if (e_line == -3) out = -1;
-  
-  if (!sensores_detectando) sensores_detectando = 1;
 
   //Serial.println(e_line);
-  error_line();
 
-  if ((out > 0)&&(sensorValues[5] < VALOR_UMBRAL)){
-    //Te has salio por la izda maskina 
+  if ((out > 0) && (sensorValues[5] < VALOR_UMBRAL)) {
+    //Te has salio por la izda maskina
     e_line = 3;
   }
-  else if((out < 0)&&(sensorValues[0] < VALOR_UMBRAL)){
+  else if ((out < 0) && (sensorValues[0] < VALOR_UMBRAL)) {
     //Te has salio por la dcha maskina
     e_line = -3;
   }
+
+  error_line(); //Gestiona el error
+
+
   pwmd = PWM_line - PID_line;
   pwmi = PWM_line + PID_line;
 
   acotar();
 
+
   e_line = 0;
   sensores_detectando = 0;
 
-  /* Mover los motores */
-
-  //  Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
-  //  delay(200);
   digitalWrite(DIRD, LOW);
   digitalWrite(DIRI, HIGH);
   analogWrite(PWMD, pwmd);
   analogWrite(PWMI, pwmi);
-  //}
-
-
-  /* Calculo de las velocidades de cada motor */
-  /*
-     e < 0 --> girar a derecha --> vDer aumenta --> como PID<0 (porque e<0) --> vDer = VNOM - PID%56 (para sumar o restar de 0 a 55)
-     e > 0 --> girar a izquierda --> vDer disminuye --> como PID>0 (porque e>0) --> vDer = VNOM - PID%56 (para sumar o restar de 0 a 55)
-  */
-
-
-  /* Asignacion del error anterior y suma del error acumulado */
 }
 
 
@@ -132,12 +123,12 @@ void leer_linea()
 
 /****************************************************************************************************/
 
-int horizontal=0;
-int detectar_horizontal(){
-  for(unsigned char i=0; i<NUM_SENSORS; i++){
-    if(sensorValues[i]>800) horizontal=1;
-    else{
-      horizontal=0;
+int horizontal = 0;
+int detectar_horizontal() {
+  for (unsigned char i = 0; i < NUM_SENSORS; i++) {
+    if (sensorValues[i] > 800) horizontal = 1;
+    else {
+      horizontal = 0;
       break;
     }
   }
