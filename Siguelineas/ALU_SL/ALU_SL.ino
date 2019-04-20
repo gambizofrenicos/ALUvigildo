@@ -13,6 +13,10 @@
 int start = 0;
 bool parada = false;
 
+/*******Para las curvitas******/
+float reset_curva = 0; //Lo que le sumamos al pwm base (cuando es 0 va lento)
+
+
 /* QTR-8RC*/
 // Configuracion inicial del sensor
 #define NUM_SENSORS 8 // numero de sensores
@@ -91,21 +95,29 @@ void loop() {
   if (!parada) {
     pwmd = PWM_line - PID_line;
     pwmi = PWM_line + PID_line;
+    
+    //Quitamos el valor de reset curva al pwm
+    pwmd+=reset_curva;
+    pwmi+=reset_curva;
     acotar();
   }
+  
   else {
     pwmd = 0;
     pwmi = 0;
   }
 
-
+  
+  deteccion_cruce();
+  deteccion_curva();
   deteccion_meta();
+
 
   Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
   Serial.print("out:  "); Serial.println(out);
   Serial.print("e_line:  "); Serial.println(e_line);
   Serial.print("start:  "); Serial.println(start);
-  Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
+//  Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
   delay(500);
 
   e_line = 0;
@@ -118,6 +130,7 @@ void loop() {
     analogWrite(PWMD, pwmd);
     analogWrite(PWMI, pwmi);*/
 }
+
 
 
 
