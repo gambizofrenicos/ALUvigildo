@@ -1,12 +1,12 @@
 // PWM
-#define PWM 40 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 100 // Limitacion superior de PWM
-#define MIN_PWM 20 // Limitacion inferior de PWM
+#define PWM 50 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 150 // Limitacion superior de PWM
+#define MIN_PWM 40 // Limitacion inferior de PWM
 
 
 // Giro
-#define G90I 130
-#define G90D -107
+#define G90I 108
+#define G90D -108
 
 // Pulsos por vuelta
 #define PPV 180
