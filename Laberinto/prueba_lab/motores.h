@@ -5,7 +5,7 @@
 
 
 // Giro
-#define G90I 130
+#define G90I 107
 #define G90D -107
 
 // Pulsos por vuelta
