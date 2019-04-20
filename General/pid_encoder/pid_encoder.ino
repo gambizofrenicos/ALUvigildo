@@ -43,24 +43,28 @@ void loop() {
     delay(1000);
 
     girar90D();*/
-    
- /*   int d = 168;
-  int encI = CountI;
-  int encD = CountD;
-  while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
-    avanza_mm(d);
-  }*/
 
-//  girar90D();
+  /*   int d = 168;
+    int encI = CountI;
+    int encD = CountD;
+    while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
+     avanza_mm(d);
+    }*/
+
+  girar90D();
 
   para();
-  delay(3000);
-  
-    Serial.print("CountI:\t");
+  delay(200);
+  girar90I();
+
+  para();
+  delay(200);
+
+  /*  Serial.print("CountI:\t");
     Serial.print(CountI);
     Serial.print("\t\t");
     Serial.print("CountD:\t");
-    Serial.println(CountD);
-  
+    Serial.println(CountD);*/
+
 
 }

@@ -1,12 +1,12 @@
 // PWM
-#define PWM 40 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 100 // Limitacion superior de PWM
+#define PWM 50 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 250 // Limitacion superior de PWM
 #define MIN_PWM 40 // Limitacion inferior de PWM
 
 
 // Giro
-#define G90I 130
-#define G90D -115
+#define G90I 108
+#define G90D -108
 
 // Pulsos por vuelta
 #define PPV 180
@@ -109,19 +109,47 @@ void avanzar_encoders() {
 
 void girar90I() {
   CountD = 0;
-  digitalWrite(DIRI, LOW);
-  digitalWrite(DIRD, LOW);
-  while (G90I > CountD) {
-    analogWrite(PWMI, PWM);
-    analogWrite(PWMD, PWM);
+  CountI = 0;
+
+  e = 0;
+
+  error(G90I, (CountD - CountI) / 2);
+
+  while (e) {
+    if (e > 0) {
+      digitalWrite(DIRI, LOW);
+      digitalWrite(DIRD, LOW);
+    } else if (e < 0) {
+      digitalWrite(DIRI, HIGH);
+      digitalWrite(DIRD, HIGH);
+    }
+
+
+    pwmi = PWM + PID_g;
+    pwmd = PWM + PID_g;
+
+    acotar();
+
+    analogWrite(PWMI, pwmi);
+    analogWrite(PWMD, pwmd);
+
+    error(G90I, (CountD - CountI) / 2);
+
+   /* Serial.print("e_I:\t");
+    Serial.print(e);
+    Serial.print("\tPID_I:\t");
+    Serial.println(PID_g);*/
+
+
   }
 }
 
 void girar90D() {
 
   CountD = 0;
+  CountI = 0;
 
-  error(G90D, CountD);
+  error(G90D, (CountD - CountI) / 2);
 
   while (e) {
     if (e < 0) {
@@ -131,17 +159,23 @@ void girar90D() {
       digitalWrite(DIRI, LOW);
       digitalWrite(DIRD, LOW);
     }
-    error(G90D, CountD);
 
-    pwmi = PID;
-    pwmd = PID;
+    pwmi = PWM - PID_g;
+    pwmd = PWM - PID_g;
 
     acotar();
-    
+
     analogWrite(PWMI, pwmi);
     analogWrite(PWMD, pwmd);
 
-    delay(20);
+    error(G90D, (CountD - CountI) / 2);
+
+  /*  Serial.print("e_D:\t");
+    Serial.print(e);
+    Serial.print("\tPID_D:\t");
+    Serial.println(PID_g);*/
+
+
 
   }
 

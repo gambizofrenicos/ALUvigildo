@@ -1,3 +1,7 @@
+#define SHARPI A0
+#define SHARPA 10
+#define SHARPO A1
+
 #include <Math.h>
 #include <EEPROM.h>
 #include "encoder.h"
