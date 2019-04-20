@@ -1,7 +1,7 @@
 // PWM
 #define PWM 50 // PWM "base" a los motores (al que queremos que vayan)
 #define MAX_PWM 250 // Limitacion superior de PWM
-#define MIN_PWM 40 // Limitacion inferior de PWM
+#define MIN_PWM 30 // Limitacion inferior de PWM
 
 
 // Giro
@@ -135,10 +135,10 @@ void girar90I() {
 
     error(G90I, (CountD - CountI) / 2);
 
-   /* Serial.print("e_I:\t");
-    Serial.print(e);
-    Serial.print("\tPID_I:\t");
-    Serial.println(PID_g);*/
+    /* Serial.print("e_I:\t");
+      Serial.print(e);
+      Serial.print("\tPID_I:\t");
+      Serial.println(PID_g);*/
 
 
   }
@@ -170,10 +170,10 @@ void girar90D() {
 
     error(G90D, (CountD - CountI) / 2);
 
-  /*  Serial.print("e_D:\t");
-    Serial.print(e);
-    Serial.print("\tPID_D:\t");
-    Serial.println(PID_g);*/
+    /*  Serial.print("e_D:\t");
+      Serial.print(e);
+      Serial.print("\tPID_D:\t");
+      Serial.println(PID_g);*/
 
 
 
@@ -183,38 +183,52 @@ void girar90D() {
 
 void girar90D_coche() {
   CountI = 0;
-  digitalWrite(DIRI, HIGH);
-  digitalWrite(DIRD, HIGH);
-  while (281 > CountI) {
-    Serial.println(CountI);
-    analogWrite(PWMI, PWM);
-    analogWrite(PWMD, 0);
-  }
-}
 
-void para() {
-  analogWrite(PWMI, 0);
-  analogWrite(PWMD, 0);
-}
+  error(-G90D, CountI);
 
-void avanza_mm(float d) {
-  int encI = CountI;
-  int encD = CountD;
+  while (e) {
+    if (e > 0) {
+      digitalWrite(DIRI, HIGH);
+      digitalWrite(DIRD, LOW);
+    } else if (e < 0) {
+      digitalWrite(DIRI, LOW);
+      digitalWrite(DIRD, HIGH);
+    }
 
-  d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
-  error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
-
-  //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
-  while ((e_mm >= 1) || (e_mm <= -1)) {
-
-    error(CountI, CountD);
-    error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
-
-    pwmi = PID_mm - PID;
-    pwmd = PID_mm + PID;
+    pwmi = PWM - PID_g;
+    pwmd = PWM - PID_g;
 
     acotar();
-    avanzar();
+
+    analogWrite(PWMI, pwmi);
+    analogWrite(PWMD, MIN_PWM);
+
+   error(G90D, CountI);
   }
 
-}
+  void para() {
+    analogWrite(PWMI, 0);
+    analogWrite(PWMD, 0);
+  }
+
+  void avanza_mm(float d) {
+    int encI = CountI;
+    int encD = CountD;
+
+    d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
+    error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
+
+    //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
+    while ((e_mm >= 1) || (e_mm <= -1)) {
+
+      error(CountI, CountD);
+      error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
+
+      pwmi = PID_mm - PID;
+      pwmd = PID_mm + PID;
+
+      acotar();
+      avanzar();
+    }
+
+  }
