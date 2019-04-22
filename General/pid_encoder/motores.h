@@ -5,7 +5,7 @@
 
 
 // Giro
-#define G90I 108
+#define G90I 117
 #define G90D -108
 
 // Pulsos por vuelta
@@ -48,7 +48,7 @@ void inicializar_motores() {
   pinMode(DIRD, OUTPUT);
 
   // initialize hardware interrupts
-  attachInterrupt(0, EncoderEventMotI, CHANGE);
+  attachInterrupt(0, EncoderEventMotI_ROTO, CHANGE);
   attachInterrupt(1, EncoderEventMotD, CHANGE);
 }
 
@@ -109,11 +109,9 @@ void avanzar_encoders() {
 
 void girar90I() {
   CountD = 0;
-  CountI = 0;
-
   e = 0;
 
-  error(G90I, (CountD - CountI) / 2);
+  error(G90I, CountD);
 
   while (e) {
     if (e > 0) {
@@ -133,7 +131,9 @@ void girar90I() {
     analogWrite(PWMI, pwmi);
     analogWrite(PWMD, pwmd);
 
-    error(G90I, (CountD - CountI) / 2);
+
+    error(G90I, CountD);
+
 
     /* Serial.print("e_I:\t");
       Serial.print(e);
@@ -203,32 +203,32 @@ void girar90D_coche() {
     analogWrite(PWMI, pwmi);
     analogWrite(PWMD, MIN_PWM);
 
-   error(G90D, CountI);
+    error(G90D, CountI);
   }
+}
+void para() {
+  analogWrite(PWMI, 0);
+  analogWrite(PWMD, 0);
+}
 
-  void para() {
-    analogWrite(PWMI, 0);
-    analogWrite(PWMD, 0);
-  }
+void avanza_mm(float d) {
+  int encI = CountI;
+  int encD = CountD;
 
-  void avanza_mm(float d) {
-    int encI = CountI;
-    int encD = CountD;
+  d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
+  error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
 
-    d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
+  //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
+  while ((e_mm >= 1) || (e_mm <= -1)) {
+
+    error(CountI, CountD);
     error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
 
-    //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
-    while ((e_mm >= 1) || (e_mm <= -1)) {
+    pwmi = PID_mm - PID;
+    pwmd = PID_mm + PID;
 
-      error(CountI, CountD);
-      error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
-
-      pwmi = PID_mm - PID;
-      pwmd = PID_mm + PID;
-
-      acotar();
-      avanzar();
-    }
-
+    acotar();
+    avanzar();
   }
+
+}

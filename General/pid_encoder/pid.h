@@ -10,7 +10,7 @@
 #define  Ki_lab  0 // I
 #define  Kd_lab  2 // D
 
-#define  Kp_mm  1
+#define  Kp_mm  0.5
 #define  Ki_mm  0
 #define  Kd_mm  0
 

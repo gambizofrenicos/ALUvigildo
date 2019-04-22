@@ -13,21 +13,26 @@ volatile long CountI = 0;
 volatile long CountD = 0;
 
 // Encoder motor izquierdo
-void EncoderEventMotI() {
-  if (digitalRead(ENC1_MOTI) == HIGH) {
-    if (digitalRead(ENC2_MOTI) == LOW) {
-      CountI--;
-    } else {
-      CountI++;
-    }
-  } else {
-    if (digitalRead(ENC2_MOTI) == LOW) {
-      CountI++;
-    } else {
-      CountI--;
-    }
-  }
+void EncoderEventMotI_ROTO(){
+  CountI++;
 }
+
+// Encoder motor izquierdo
+//void EncoderEventMotI() {
+//  if (digitalRead(ENC1_MOTI) == HIGH) {
+//    if (digitalRead(ENC2_MOTI) == LOW) {
+//      CountI--;
+//    } else {
+//      CountI++;
+//    }
+//  } else {
+//    if (digitalRead(ENC2_MOTI) == LOW) {
+//      CountI++;
+//    } else {
+//      CountI--;
+//    }
+//  }
+//}
 
 // Encoder motor derecho
 void EncoderEventMotD() {

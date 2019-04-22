@@ -83,15 +83,15 @@ void loop() {
       pwmd = PWM + PID_lab;
       acotar();
       avanzar();
-      //  para();
-      //  delay(2000);
+      para();
+      delay(2000);
     } else {
       if (paredes_sensor[0] == 0) {
         girar90I(); //ojo, tanto mover izquierda como mover derecha se refieren a ir de una casilla a la inmediatamente contigua a ese lado, como si tuviéramos omniruedas. Esto quiere decir que la cantidad de tiempo que me muevo recto es distinto que cuando sigo recto ya que tengo que restar el giro
         para();
         delay(500);
-        // avanza_mm_lab(150);
-        // para();
+        avanza_mm_lab(150);
+        para();
         delay(2000);
       } else {
         if (paredes_sensor[1] == 1) {
@@ -99,9 +99,9 @@ void loop() {
           girar90D();
           para();
           delay(500);
-          avanza_mm_lab(50);
-          // para();
-          // delay(2000);
+          avanza_mm_lab(140);
+          para();
+          delay(2000);
         }
       }
     }

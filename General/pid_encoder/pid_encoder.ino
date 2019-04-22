@@ -17,12 +17,12 @@ void setup() {
   pinMode(DIRD, OUTPUT);
 
   // initialize hardware interrupts
-  attachInterrupt(0, EncoderEventMotI, CHANGE);
+  attachInterrupt(0, EncoderEventMotI_ROTO, CHANGE);
   attachInterrupt(1, EncoderEventMotD, CHANGE);
 
   Serial.begin(9600);
 
-  //arrancar(CountI, CountD);
+//  arrancar(CountI, CountD);
 }
 
 void loop() {
@@ -50,17 +50,21 @@ void loop() {
     while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
      avanza_mm(d);
     }*/
-
-  girar90D();
-
-  para();
-  delay(200);
+//  arrancar(CountI, CountD);
   girar90I();
-
+ // delay(1000);
   para();
   delay(200);
 
-  /*  Serial.print("CountI:\t");
+  /* Serial.print(CountD);
+    Serial.print("\t");
+    Serial.print(CountI);
+    Serial.print("\t");
+    Serial.print(digitalRead(ENC1_MOTI));
+    Serial.print("\t");
+    Serial.println(digitalRead(ENC2_MOTI));*/
+
+ /*   Serial.print("CountI:\t");
     Serial.print(CountI);
     Serial.print("\t\t");
     Serial.print("CountD:\t");
