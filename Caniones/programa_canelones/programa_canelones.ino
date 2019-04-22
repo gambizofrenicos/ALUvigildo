@@ -58,11 +58,9 @@ void loop() {
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
     if (horiz_actual == 1 && horiz_anterior == 0) {
-      para();
-      delay(1000);
+      
       disparar('C');
-      para();
-      delay(1000);
+      
       Serial.println("FLANCO 1");
       fase = 2;
 
@@ -79,11 +77,9 @@ void loop() {
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
     if (horiz_actual == 1 && horiz_anterior == 0) {
-      para();
-      delay(1000);
+      
       disparar('D');
-      para();
-      delay(1000);
+      
       fase = 3;
       Serial.println("FLANCO 2");
     }
@@ -98,11 +94,9 @@ void loop() {
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
     if (horiz_actual == 1 && horiz_anterior == 0) {
-      para();
-      delay(1000);
+      
       disparar('I');
-      para();
-      delay(1000);
+      
       fase = 4;
       Serial.println("FLANCO 3");
     }
@@ -116,6 +110,9 @@ void loop() {
       avanzar_encoders();
     }
     para();
+    
+    delay(1000);
+    while(1);
 
   }
 

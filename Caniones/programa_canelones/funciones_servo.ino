@@ -2,7 +2,12 @@
 #define GRADOS_DISPARO 100
 
 void disparar(char canion) {
-
+  
+  /*Parar y esperar a que pare*/
+  para();
+  delay(1000);
+  
+  /*DISPAROS DE LOS CANIONES*/
   if (canion == 'D') {
     while (servoD.attached() != 1) {
       servoD.attach(9);
@@ -24,6 +29,9 @@ void disparar(char canion) {
     servoI.write(GRADOS_DISPARO);
     //servoI.detach();
   }
+
+  /*Parar despues de disparar*/
+  delay(1000);
 
 }
 
