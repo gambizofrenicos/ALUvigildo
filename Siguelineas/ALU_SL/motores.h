@@ -1,7 +1,7 @@
 // PWM
 #define PWM 95 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 255 // Limitacion superior de PWM
-#define MIN_PWM 40 // Limitacion inferior de PWM
+#define MAX_PWM 120 // Limitacion superior de PWM
+#define MIN_PWM 20 // Limitacion inferior de PWM
 
 
 // Giro

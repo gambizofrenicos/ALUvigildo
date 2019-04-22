@@ -7,12 +7,12 @@
 #define Kd_lab 2  // D
 
 #define Kp_mm 1 //P
-#define Kd_mm 0 //I
-#define Ki_mm 0 //D
+#define Kd_mm 0 //D
+#define Ki_mm 0 //I
 
-#define Kp_line  20 //P
-#define Kd_line 0.5 //I
-#define Ki_line 0   //D 
+#define Kp_line 20 //P
+#define Kd_line 0  //D
+#define Ki_line 0   //I 
 
 #define PID Kp*e+Kd*(e-e_ant)+Ki*e_acum // calculo del PID con una macro
 #define PID_mm Kp_mm*e_mm+Kd_mm*(e_mm-e_ant_mm)+Ki_mm*e_acum_mm // calculo del PID con una macro

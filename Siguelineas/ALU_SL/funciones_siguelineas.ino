@@ -1,7 +1,7 @@
 void calibracion() {
   pinMode(13, OUTPUT);
   digitalWrite(13, HIGH); // encender LED del Arduino
-  for (int i = 0; i < 400; i++) {
+  for (int i = 0; i < 200; i++) {
     qtrrc.calibrate();
   }
   digitalWrite(13, LOW); // apagar el LED

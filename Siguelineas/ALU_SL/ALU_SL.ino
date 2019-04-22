@@ -4,8 +4,8 @@
 #include <QTRSensors.h>
 #include <Math.h>
 
-#define PWM_line 60
-#define DETECTA_META sensor7Values[7] > VALOR_UMBRAL
+#define PWM_line 20
+#define DETECTA_META sensorValues[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
 
@@ -66,6 +66,8 @@ void loop() {
     else {*/
   for (int i = 0; i < (NUM_SENSORS - 2); i++) {
     if (sensorValues[i] > VALOR_UMBRAL) {
+      //Serial.println(sensorValues[i]);
+      //delay(500);
       // Si el sensor supera un cierto umbral, se suma su error asignado
       e_line += errores[i];
       sensores_detectando++;
@@ -110,25 +112,25 @@ void loop() {
   deteccion_curva();
   deteccion_meta();
 
-  reset_curva += ((CountI + CountD) / 20);
-  CountD = 0;
-  CountI = 0;
+  //reset_curva += ((CountI + CountD) / 20);
+  //CountD = 0;
+  //CountI = 0;
 
 
-  //  Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
-  //  Serial.print("out:  "); Serial.println(out);
-  //  Serial.print("e_line:  "); Serial.println(e_line);
+//    Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
+//    Serial.print("out:  "); Serial.println(out);
+//    Serial.print("e_line:  "); Serial.println(e_line);
 //    Serial.print("start:  "); Serial.println(start);
 //    Serial.print("sensorD:  "); Serial.println(sensorValues[7]);
-  //  delay(500);
+//    delay(500);
 
   e_line = 0;
   sensores_detectando = 0;
 
   /* Mover los motores */
 //
-  digitalWrite(DIRD, LOW);
+  /*digitalWrite(DIRD, LOW);
   digitalWrite(DIRI, HIGH);
   analogWrite(PWMD, pwmd);
-  analogWrite(PWMI, pwmi);
+  analogWrite(PWMI, pwmi);*/
 }
