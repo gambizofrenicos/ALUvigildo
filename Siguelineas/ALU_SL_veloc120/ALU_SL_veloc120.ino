@@ -4,7 +4,7 @@
 #include <QTRSensors.h>
 #include <Math.h>
 
-#define PWM_line 80
+#define PWM_line 120
 #define DETECTA_META sensorValues[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
