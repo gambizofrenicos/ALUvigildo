@@ -4,7 +4,7 @@
 #include <QTRSensors.h>
 #include <Math.h>
 
-#define PWM_line 100
+#define PWM_line 80
 #define DETECTA_META sensorValues[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
@@ -33,6 +33,7 @@ unsigned int sensorValues[NUM_SENSORS]; // Array para guardar los valores de los
 unsigned int sensores_detectando = 0;
 
 int out = 0;
+long int tiempo = 0;
 
 /* CONSTANTES */
 #define VALOR_UMBRAL 300 // Valor umbral que determina si hay linea o no (hay que comprobar)
@@ -52,6 +53,8 @@ void setup() {
 
   /* Calibración */
   calibracion(); // calibracion del sensor y muestra por serial los datos
+
+  tiempo = millis();
 
 }
 
@@ -92,6 +95,15 @@ void loop() {
 
   error_line(); //Gestiona el error
 
+  if (millis() >= tiempo + 200){
+    reset_curva += 1;
+    tiempo = millis();
+  }
+
+  if(DETECTA_CURVA){
+    reset_curva = 0;
+  }
+
   if (!parada) {
     pwmd = PWM_line - PID_line;
     pwmi = PWM_line + PID_line;
@@ -111,9 +123,6 @@ void loop() {
   deteccion_curva();
   deteccion_meta();
 
-  //reset_curva += ((CountI + CountD) / 20);
-  //CountD = 0;
-  //CountI = 0;
 
 
 //    Serial.print("PWMs:  "); Serial.print(pwmd); Serial.print("\t"); Serial.println(pwmi);
