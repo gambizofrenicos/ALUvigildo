@@ -6,7 +6,7 @@
 
 // Giro
 #define G90I 117
-#define G90D -108
+#define G90D -117
 
 // Pulsos por vuelta
 #define PPV 180

@@ -1,12 +1,12 @@
 // PWM
-#define PWM 50 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 100// Limitacion superior de PWM
-#define MIN_PWM 20 // Limitacion inferior de PWM
+#define PWM 20 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 40// Limitacion superior de PWM
+#define MIN_PWM 0 // Limitacion inferior de PWM
 
 
 // Giro
-#define G90I 117
-#define G90D -108
+#define G90I 112
+#define G90D -112
 
 // Pulsos por vuelta
 #define PPV 180
@@ -21,6 +21,10 @@
 
 float pwmi = 0, pwmd = 0; // pwm que pasamos a cada motor
 
+float dist_i = 0;
+float dist_d = 0;
+bool dist_a = 0;
+
 void acotar();
 void arrancar();
 void avanzar();
@@ -31,6 +35,7 @@ void girar90D_coche();
 void para();
 void avanza_mm(float d);
 void avanza_mm_lab(float d);
+void leer();
 
 //Arrancar sin caballito
 void arrancar(int e1, int e2) {
@@ -77,7 +82,14 @@ void avanzar() {
 }
 
 void avanzar_encoders() {
-  error(CountI, CountD);
+  leer();
+  if (dist_d > 10){
+    error(dist_i, 16.8 - dist_i - 2.7);
+    } else {
+      if (dist_i > 10){
+        error(16.8 - dist_d - 2.7, dist_d);
+        }
+      }
 
   pwmi = PWM - PID;
   pwmd = PWM + PID;
@@ -88,7 +100,7 @@ void avanzar_encoders() {
 
 void avanzar_sharps() {
   error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
-  
+
   pwmi = PWM - PID_lab;
   pwmd = PWM + PID_lab;
 
@@ -159,10 +171,10 @@ void girar90D() {
 
     error(G90D, (CountD - CountI) / 2);
 
-  /*  Serial.print("e_D:\t");
-    Serial.print(e);
-    Serial.print("\tPID_D:\t");
-    Serial.println(PID_g);*/
+    /*  Serial.print("e_D:\t");
+      Serial.print(e);
+      Serial.print("\tPID_D:\t");
+      Serial.println(PID_g);*/
 
 
 
@@ -174,13 +186,13 @@ void girar180() {
   CountD = 0;
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, HIGH);
-  while (2*G90D < CountD) {
+  while (2 * G90D < CountD) {
     analogWrite(PWMI, PWM);
     analogWrite(PWMD, PWM);
   }
 }
 
-void girar90D_coche(){
+void girar90D_coche() {
   CountI = 0;
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, HIGH);
@@ -198,20 +210,20 @@ void para() {
 
 void avanza_mm(float d) {
 
-  CountI=0;
-  CountD=0;
-  
+  CountI = 0;
+  CountD = 0;
+
   int encI = CountI;
   int encD = CountD;
 
-  d = (d/(2*PI*16)) * PPV; //16 mm es el radio de las ruedas de pololu
-  error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
-  
+  d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
+  error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
+
   //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
-  while ((e_mm >= 1) || (e_mm <= -1)){
-    
-  error(CountI, CountD);
-	error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
+  while ((e_mm >= 1) || (e_mm <= -1)) {
+
+    error(CountI, CountD);
+    error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
 
     pwmi = PID_mm - PID;
     pwmd = PID_mm + PID;
@@ -226,14 +238,14 @@ void avanza_mm_lab(float d) {
   int encI = CountI;
   int encD = CountD;
 
-  d = (d/(2*PI*16)) * PPV; //16 mm es el radio de las ruedas de pololu
-  error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
-  
+  d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
+  error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
+
   //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
-  while ((e_mm >= 1) || (e_mm <= -1)){
-    
-  error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
-  error_mm(d,((CountI + CountD)/2) - ((encI + encD)/2));
+  while ((e_mm >= 1) || (e_mm <= -1)) {
+
+    error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
+    error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
 
     pwmi = PWM - PID_lab;
     pwmd = PWM + PID_lab;
@@ -243,3 +255,25 @@ void avanza_mm_lab(float d) {
   }
 
 }
+
+void leer() {
+  dist_d = 2076.0 / (analogRead(SHARPO) - 11.0);
+  if (dist_d < 0) {
+    dist_d = 200;
+  }
+
+  dist_i = 2076.0 / (analogRead(SHARPI) - 11.0);
+  if (dist_i < 0) {
+    dist_i = 200;
+  }
+  dist_a = digitalRead(SHARPA);
+
+  /*
+    Serial.print(dist_d);
+    Serial.print("\t");
+    Serial.print(dist_i);
+    Serial.print("\t");
+    Serial.println(dist_a);
+  */
+}
+
