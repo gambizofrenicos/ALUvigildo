@@ -33,6 +33,14 @@ void setup() {
   //Incluimos el final de carrera
   pinMode(FDC, INPUT);
 
+  servoI.attach(9);
+
+  servoI.write(100);
+
+  delay(1000);
+
+  servoI.detach();
+
   //Calibramos siguelineas
   calibrar();
 
@@ -46,6 +54,8 @@ void setup() {
 
 int horiz_actual = 0;
 int horiz_anterior = 0;
+
+int finalizar=0;
 
 void loop() {
 
@@ -61,7 +71,7 @@ void loop() {
       
       disparar('C');
       
-      Serial.println("FLANCO 1");
+      //Serial.println("FLANCO 1");
       fase = 2;
 
     }
@@ -76,14 +86,16 @@ void loop() {
     avanzar_encoders();
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
+    avanzar_encoders();
     if (horiz_actual == 1 && horiz_anterior == 0) {
       
       disparar('D');
       
       fase = 3;
-      Serial.println("FLANCO 2");
+      //Serial.println("FLANCO 2");
     }
     horiz_anterior = horiz_actual;
+    avanzar_encoders();
   }
 
   else if (fase == 3) {
@@ -93,30 +105,39 @@ void loop() {
     avanzar_encoders();
     //Cuando detecta horizontal para y dispara y cambiamos de fase
     horiz_actual = detectar_horizontal();
+    avanzar_encoders();
     if (horiz_actual == 1 && horiz_anterior == 0) {
       
       disparar('I');
       
       fase = 4;
-      Serial.println("FLANCO 3");
+      //Serial.println("FLANCO 3");
     }
     horiz_anterior = horiz_actual;
+    avanzar_encoders();
   }
 
-  else if (fase == 4) {
+  else if (fase == 4 && finalizar==0) {
     //Avanzar recto hasta que toca final de carrera
-    CountI=0; CountD=0;
+    /*CountI=0; CountD=0;
+    arrancar();
     while (!digitalRead(FDC)) {
       avanzar_encoders();
     }
     para();
     
     delay(1000);
-    while(1);
-
+    while(1);*/
+    CountI=0; CountD=0;
+    avanzar_encoders();
+    if(digitalRead(FDC)) finalizar=1;
+    avanzar_encoders();
   }
-
-
-
+  else if(finalizar) para();
+//
+//Serial.print(CountD);
+//    Serial.print("\t");
+//    Serial.print(CountI);
+//    Serial.println("\t");
 }
 

@@ -1,7 +1,7 @@
 // PWM
-#define PWM 95 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 150 // Limitacion superior de PWM
-#define MIN_PWM 40 // Limitacion inferior de PWM
+#define PWM 40 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 100 // Limitacion superior de PWM
+#define MIN_PWM 20 // Limitacion inferior de PWM
 
 
 // Giro
@@ -48,19 +48,19 @@ void inicializar_motores() {
   pinMode(DIRD, OUTPUT);
 
   // initialize hardware interrupts
-  attachInterrupt(0, EncoderEventMotI, CHANGE);
+  attachInterrupt(0, EncoderEventMotI_ROTO, CHANGE);
   attachInterrupt(1, EncoderEventMotD, CHANGE);
 }
 
 //Arrancar sin caballito
-void arrancar(int e1, int e2) {
+void arrancar() {
 
   digitalWrite(DIRI, HIGH);
   digitalWrite(DIRD, LOW);
 
   for (int i = MIN_PWM; i <= PWM; i++) {
 
-    error(e1, e2);
+    error(CountI, CountD);
 
     pwmi = i - e;
     pwmd = i + e;

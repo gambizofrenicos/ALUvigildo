@@ -1,4 +1,4 @@
-#define PWM_line 60
+#define PWM_line 40
 #define DETECTA_META sensorValues[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
@@ -122,16 +122,48 @@ void seguir_linea()
 
 
 /****************************************************************************************************/
-
+int sensores = 0;
 int horizontal = 0;
+
 int detectar_horizontal() {
+  sensores = 0;
+
   for (unsigned char i = 0; i < NUM_SENSORS; i++) {
-    if (sensorValues[i] > 800) horizontal = 1;
-    else {
-      horizontal = 0;
-      break;
-    }
+    if (sensorValues[i] > 800) sensores++;
   }
+
+  if (sensores >= 3) horizontal = 1;
+  else horizontal = 0;
+
   return horizontal;
+}
+
+int corregir_disparo() { //devuelve -1 si tiene que girar a la derecha y 1 si tiene que girar a la i
+  if (sensorValues[0] < 800) { //se sale por la izquierda
+    digitalWrite(DIRI, HIGH);
+    digitalWrite(DIRD, HIGH);
+
+
+    analogWrite(PWMI, 40);
+    analogWrite(PWMD, 0);
+    delay(60);
+    analogWrite(PWMI, 0);
+    analogWrite(PWMD, 0);
+    delay(100);
+
+  }
+  if (sensorValues[5] < 800) {
+    digitalWrite(DIRI, HIGH);
+    digitalWrite(DIRD, HIGH);
+
+
+    analogWrite(PWMD, 40);
+    analogWrite(PWMI, 0);
+    delay(60);
+    analogWrite(PWMI, 0);
+    analogWrite(PWMD, 0);
+    delay(100);
+
+  }
 }
 

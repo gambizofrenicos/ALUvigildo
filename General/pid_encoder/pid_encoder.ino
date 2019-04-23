@@ -51,18 +51,16 @@ void loop() {
      avanza_mm(d);
     }*/
 //  arrancar(CountI, CountD);
-  girar90I();
+  avanzar_encoders();
  // delay(1000);
-  para();
-  delay(200);
 
-  /* Serial.print(CountD);
+   Serial.print(CountD);
     Serial.print("\t");
     Serial.print(CountI);
     Serial.print("\t");
     Serial.print(digitalRead(ENC1_MOTI));
     Serial.print("\t");
-    Serial.println(digitalRead(ENC2_MOTI));*/
+    Serial.println(digitalRead(ENC2_MOTI));
 
  /*   Serial.print("CountI:\t");
     Serial.print(CountI);
