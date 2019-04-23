@@ -4,7 +4,7 @@
 #include <QTRSensors.h>
 #include <Math.h>
 
-#define PWM_line 80
+#define PWM_line 60
 #define DETECTA_META sensorValues[7] > VALOR_UMBRAL
 #define DETECTA_CURVA sensorValues[6] > VALOR_UMBRAL
 #define VA_RECTO (sensorValues[2] > VALOR_UMBRAL) && (sensorValues[3] > VALOR_UMBRAL)
@@ -33,7 +33,6 @@ unsigned int sensorValues[NUM_SENSORS]; // Array para guardar los valores de los
 unsigned int sensores_detectando = 0;
 
 int out = 0;
-
 
 /* CONSTANTES */
 #define VALOR_UMBRAL 300 // Valor umbral que determina si hay linea o no (hay que comprobar)
