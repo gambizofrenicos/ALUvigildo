@@ -1,12 +1,15 @@
 // PWM
-#define PWM 30 // PWM "base" a los motores (al que queremos que vayan)
-#define MAX_PWM 90 // Limitacion superior de PWM
-#define MIN_PWM 20 // Limitacion inferior de PWM
+#define PWM 60 // PWM "base" a los motores (al que queremos que vayan)
+#define MAX_PWM 40// Limitacion superior de PWM
+#define MIN_PWM 0 // Limitacion inferior de PWM
 
+#define SHARPI A0
+#define SHARPA 10
+#define SHARPO A1
 
 // Giro
-#define G90I 108
-#define G90D -108
+#define G90I 112
+#define G90D -112
 
 // Pulsos por vuelta
 #define PPV 180
@@ -21,37 +24,21 @@
 
 float pwmi = 0, pwmd = 0; // pwm que pasamos a cada motor
 
-void inicializar_motores();
+float dist_i = 0;
+float dist_d = 0;
+bool dist_a = 0;
+
 void acotar();
 void arrancar();
 void avanzar();
-void avanzar_encoders();
 void girar90I();
 void girar90D();
+void girar180();
 void girar90D_coche();
 void para();
 void avanza_mm(float d);
-void girodrag(char dir);
-
-
-//Inicializar motores y encoders
-void inicializar_motores() {
-  // Inicializamos motor I
-  pinMode(ENC1_MOTI, INPUT);
-  pinMode(ENC2_MOTI, INPUT);
-  pinMode(PWMI, OUTPUT);
-  pinMode(DIRI, OUTPUT);
-
-  // Inicializamos motor D
-  pinMode(ENC1_MOTD, INPUT);
-  pinMode(ENC2_MOTD, INPUT);
-  pinMode(PWMD, OUTPUT);
-  pinMode(DIRD, OUTPUT);
-
-  // initialize hardware interrupts
-  attachInterrupt(0, EncoderEventMotI, CHANGE);
-  attachInterrupt(1, EncoderEventMotD, CHANGE);
-}
+void avanza_mm_lab(float d);
+void leer();
 
 //Arrancar sin caballito
 void arrancar(int e1, int e2) {
@@ -97,32 +84,38 @@ void avanzar() {
   analogWrite(PWMD, pwmd);
 }
 
-void hacia_atras(){
-  digitalWrite(DIRI, LOW);
-  digitalWrite(DIRD, HIGH);
-  
-  analogWrite(PWMI, pwmi);
-  analogWrite(PWMD, pwmd);
-}
-
 void avanzar_encoders() {
-  error(CountI, CountD);
+  leer();
+  if (dist_d > 10) {
+    error(dist_i, 16.8 - dist_i - 2.7);
+  } else {
+    if (dist_i > 10) {
+      error(16.8 - dist_d - 2.7, dist_d);
+    }
+  }
 
   pwmi = PWM - PID;
   pwmd = PWM + PID;
 
   acotar();
+  avanzar();
+}
 
+void avanzar_sharps() {
+  error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
+
+  pwmi = PWM - PID_lab;
+  pwmd = PWM + PID_lab;
+
+  acotar();
   avanzar();
 }
 
 void girar90I() {
   CountD = 0;
-  CountI = 0;
-
   e = 0;
 
-  error(G90I, (CountD - CountI) / 2);
+  error(G90I, CountD);
 
   while (e) {
     if (e > 0) {
@@ -142,7 +135,9 @@ void girar90I() {
     analogWrite(PWMI, pwmi);
     analogWrite(PWMD, pwmd);
 
-    error(G90I, (CountD - CountI) / 2);
+
+    error(G90I, CountD);
+
 
     /* Serial.print("e_I:\t");
       Serial.print(e);
@@ -190,14 +185,35 @@ void girar90D() {
 
 }
 
+void girar180() {
+  CountD = 0;
+  digitalWrite(DIRI, HIGH);
+  digitalWrite(DIRD, HIGH);
+  while (2 * G90D < CountD) {
+    analogWrite(PWMI, PWM);
+    analogWrite(PWMD, PWM);
+  }
+}
+
 void girar90D_coche() {
   CountI = 0;
   digitalWrite(DIRI, HIGH);
-  digitalWrite(DIRD, HIGH);
-  while (281 > CountI) {
-    Serial.println(CountI);
+  digitalWrite(DIRD, LOW);
+  while (360 > CountI) {
+    //Serial.println(CountI);
     analogWrite(PWMI, PWM);
-    analogWrite(PWMD, 0);
+    analogWrite(PWMD, 0.20 * PWM);
+  }
+}
+
+void girar90I_coche() {
+  CountD = 0;
+  digitalWrite(DIRD, LOW);
+  digitalWrite(DIRI, HIGH);
+  while (360 > CountD) {
+    //Serial.println(CountI);
+    analogWrite(PWMI, 0.28 * PWM);
+    analogWrite(PWMD, PWM);
   }
 }
 
@@ -207,6 +223,10 @@ void para() {
 }
 
 void avanza_mm(float d) {
+
+  CountI = 0;
+  CountD = 0;
+
   int encI = CountI;
   int encD = CountD;
 
@@ -228,15 +248,46 @@ void avanza_mm(float d) {
 
 }
 
-void girodrag(char dir) {
-  if (dir == 'D') {
-    digitalWrite(DIRI, HIGH);
-    digitalWrite(DIRD, HIGH);
-  } else if (dir == 'I') {
-    digitalWrite(DIRI, LOW);
-    digitalWrite(DIRD, LOW);
+void avanza_mm_lab(float d) {
+  int encI = CountI;
+  int encD = CountD;
+
+  d = (d / (2 * PI * 16)) * PPV; //16 mm es el radio de las ruedas de pololu
+  error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
+
+  //while ((((CountI + CountD) / 2) - ((encI + encD) / 2)) < d) {
+  while ((e_mm >= 1) || (e_mm <= -1)) {
+
+    error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
+    error_mm(d, ((CountI + CountD) / 2) - ((encI + encD) / 2));
+
+    pwmi = PWM - PID_lab;
+    pwmd = PWM + PID_lab;
+
+    acotar();
+    avanzar();
   }
 
-  analogWrite(PWMI, PWM);
-  analogWrite(PWMD, PWM);
 }
+
+void leer() {
+  dist_d = 2076.0 / (analogRead(SHARPO) - 11.0);
+  if (dist_d < 0) {
+    dist_d = 200;
+  }
+
+  dist_i = 2076.0 / (analogRead(SHARPI) - 11.0);
+  if (dist_i < 0) {
+    dist_i = 200;
+  }
+  dist_a = digitalRead(SHARPA);
+
+  /*
+    Serial.print(dist_d);
+    Serial.print("\t");
+    Serial.print(dist_i);
+    Serial.print("\t");
+    Serial.println(dist_a);
+  */
+}
+
