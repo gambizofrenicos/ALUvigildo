@@ -1,11 +1,11 @@
 // PWM
-#define PWM 50 // PWM "base" a los motores (al que queremos que vayan)
+#define PWM 100 // PWM "base" a los motores (al que queremos que vayan)
 #define MAX_PWM 250 // Limitacion superior de PWM
-#define MIN_PWM 40 // Limitacion inferior de PWM
+#define MIN_PWM 30 // Limitacion inferior de PWM
 
 
 // Giro
-#define G90I 108
+#define G90I 117
 #define G90D -108
 
 // Pulsos por vuelta
@@ -48,7 +48,7 @@ void inicializar_motores() {
   pinMode(DIRD, OUTPUT);
 
   // initialize hardware interrupts
-  attachInterrupt(0, EncoderEventMotI, CHANGE);
+  attachInterrupt(0, EncoderEventMotI_ROTO, CHANGE);
   attachInterrupt(1, EncoderEventMotD, CHANGE);
 }
 
@@ -109,11 +109,9 @@ void avanzar_encoders() {
 
 void girar90I() {
   CountD = 0;
-  CountI = 0;
-
   e = 0;
 
-  error(G90I, (CountD - CountI) / 2);
+  error(G90I, CountD);
 
   while (e) {
     if (e > 0) {
@@ -133,12 +131,14 @@ void girar90I() {
     analogWrite(PWMI, pwmi);
     analogWrite(PWMD, pwmd);
 
-    error(G90I, (CountD - CountI) / 2);
 
-   /* Serial.print("e_I:\t");
-    Serial.print(e);
-    Serial.print("\tPID_I:\t");
-    Serial.println(PID_g);*/
+    error(G90I, CountD);
+
+
+    /* Serial.print("e_I:\t");
+      Serial.print(e);
+      Serial.print("\tPID_I:\t");
+      Serial.println(PID_g);*/
 
 
   }
@@ -170,10 +170,10 @@ void girar90D() {
 
     error(G90D, (CountD - CountI) / 2);
 
-  /*  Serial.print("e_D:\t");
-    Serial.print(e);
-    Serial.print("\tPID_D:\t");
-    Serial.println(PID_g);*/
+    /*  Serial.print("e_D:\t");
+      Serial.print(e);
+      Serial.print("\tPID_D:\t");
+      Serial.println(PID_g);*/
 
 
 
@@ -183,15 +183,29 @@ void girar90D() {
 
 void girar90D_coche() {
   CountI = 0;
-  digitalWrite(DIRI, HIGH);
-  digitalWrite(DIRD, HIGH);
-  while (281 > CountI) {
-    Serial.println(CountI);
-    analogWrite(PWMI, PWM);
-    analogWrite(PWMD, 0);
+
+  error(-G90D, CountI);
+
+  while (e) {
+    if (e > 0) {
+      digitalWrite(DIRI, HIGH);
+      digitalWrite(DIRD, LOW);
+    } else if (e < 0) {
+      digitalWrite(DIRI, LOW);
+      digitalWrite(DIRD, HIGH);
+    }
+
+    pwmi = PWM - PID_g;
+    pwmd = PWM - PID_g;
+
+    acotar();
+
+    analogWrite(PWMI, pwmi);
+    analogWrite(PWMD, MIN_PWM);
+
+    error(G90D, CountI);
   }
 }
-
 void para() {
   analogWrite(PWMI, 0);
   analogWrite(PWMD, 0);

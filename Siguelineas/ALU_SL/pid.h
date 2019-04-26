@@ -3,16 +3,16 @@
 #define Kd 0 // D
 
 #define Kp_lab 10 // P
-#define Ki_lab 0 // I
-#define Kd_lab 2 // D
+#define Ki_lab 0  // I
+#define Kd_lab 2  // D
 
-#define Kp_mm 1
-#define Kd_mm 0
-#define Ki_mm 0
+#define Kp_mm 1 //P
+#define Ki_mm 0 //I
+#define Kd_mm 0 //D
 
-#define Kp_line 20
-#define Kd_line 1
-#define Ki_line 0
+#define Kp_line 13 //P
+#define Ki_line 60 //I 
+#define Kd_line 15  //D
 
 #define PID Kp*e+Kd*(e-e_ant)+Ki*e_acum // calculo del PID con una macro
 #define PID_mm Kp_mm*e_mm+Kd_mm*(e_mm-e_ant_mm)+Ki_mm*e_acum_mm // calculo del PID con una macro
@@ -49,8 +49,8 @@ void error_mm (int e1, int e2) {
 }
 
 void error_line () {
-  
-  if (e_ant_line * e_line > 0) {
+
+  if (e_acum_line * e_line > 0) {
     e_acum_line += e_line;
   } else {
     e_acum_line = 0;

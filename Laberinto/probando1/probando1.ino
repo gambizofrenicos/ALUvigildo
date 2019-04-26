@@ -70,31 +70,42 @@ void loop() {
   leer_paredes();
   if (paredes_sensor[2] == 0) {
     girar90D();
-    avanza_mm_lab(150);
     para();
     delay(500);
+    avanza_mm_lab(50);
+    // para();
+    // delay(2000);
   } else {
     if (paredes_sensor[1] == 0) {
-      avanza_mm_lab(168);
+
+      error((2076.0 / (analogRead(SHARPI) - 11.0)), (2076.0 / (analogRead(SHARPO) - 11.0)));
+      pwmi = PWM - PID_lab;
+      pwmd = PWM + PID_lab;
+      acotar();
+      avanzar();
       para();
-      delay(500);
+      delay(2000);
     } else {
       if (paredes_sensor[0] == 0) {
         girar90I(); //ojo, tanto mover izquierda como mover derecha se refieren a ir de una casilla a la inmediatamente contigua a ese lado, como si tuviéramos omniruedas. Esto quiere decir que la cantidad de tiempo que me muevo recto es distinto que cuando sigo recto ya que tengo que restar el giro
-        avanza_mm_lab(150);
         para();
         delay(500);
+        avanza_mm_lab(150);
+        para();
+        delay(2000);
       } else {
         if (paredes_sensor[1] == 1) {
           girar90D();
           girar90D();
-          avanza_mm_lab(150);
           para();
           delay(500);
+          avanza_mm_lab(140);
+          para();
+          delay(2000);
         }
       }
     }
   }
-  j++;
-  Serial.println (j);
+  // j++;
+  //  Serial.println (j);
 }

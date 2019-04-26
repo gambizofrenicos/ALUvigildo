@@ -12,6 +12,11 @@
 volatile long CountI = 0;
 volatile long CountD = 0;
 
+//Encoder roto
+void EncoderEventMotI_ROTO(){
+  CountI++;
+}
+
 // Encoder motor izquierdo
 void EncoderEventMotI() {
   if (digitalRead(ENC1_MOTI) == HIGH) {
