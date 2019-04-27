@@ -82,6 +82,28 @@ void setup()
 void loop() {
 
 
+  // EMITIENDO DE 1
+  digitalWrite(PIN_TRIGGER_1, LOW);
+  delayMicroseconds(5);
+  digitalWrite(PIN_TRIGGER_1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(PIN_TRIGGER_1, LOW);
+
+  // LEE DE 2
+  digitalWrite(PIN_TRIGGER_2, LOW);
+  delayMicroseconds(5);
+  digitalWrite(PIN_TRIGGER_2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(PIN_TRIGGER_2, LOW);
+
+  pinMode(PIN_ECHO_2, INPUT);
+  duration = pulseIn(PIN_ECHO_2, HIGH);
+  if (duration != 42 && media > duration) {
+    media = duration;
+  }
+  Serial.print(media);
+  Serial.print(" ");
+  Serial.println(duration);
 
   if (enCasa) { // esta en la casa, busca al dragon
     // Asignar 0 y 1 al vector v en cada vuelta de loop
