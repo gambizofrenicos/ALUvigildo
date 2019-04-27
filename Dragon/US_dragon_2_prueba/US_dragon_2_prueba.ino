@@ -3,7 +3,7 @@
 #define PIN_ECHO_2 10
 #define ESPERA_ENTRE_EMISION 3 // tiempo entre lecturas consecutivas en milisegundos
 
-#define LIM_US 6000
+#define LIM_US 5000
 #define LIM_media 0.1
 
 #define NV 21
@@ -36,8 +36,6 @@ int i = 0;
 int v[NV] = {0};
 float media = 0;
 int enCasa = 1; // para detectar cuando está en el cuadrado original
-int auxi, auxd;
-
 
 int detectar() {
 
@@ -105,11 +103,11 @@ void loop() {
     } else if (FDC) {
       enCasa = 0;
       hacia_atras();
-      delay(200);
+      delay(100);
       auxi = pwmi;
       auxd = pwmd;
-      pwmi = 175;
-      pwmd = 175;
+      pwmi = 150;
+      pwmd = 150;
       avanzar();
       delay(100);
       para();
@@ -128,7 +126,27 @@ void loop() {
   //Serial.println(media);
   /* Serial.print(" ");
     Serial.println(0);*/
+
   media = 0;
+  //  if(!FDC){
+  //    avanzar_encoders();
+  //  }
+  //  else{
+  //    hacia_atras();
+  //    delay(100);
+  //    auxi = pwmi;
+  //    auxd = pwmd;
+  //    pwmi = 150;
+  //    pwmd = 150;
+  //    avanzar();
+  //    delay(100);
+  //    para();
+  //    delay(500);
+  //    pwmi = auxi;
+  //    pwmd = auxd;
+  //    hacia_atras();
+  //    delay(500);
+  //  }
 }
 
 void hogar() {

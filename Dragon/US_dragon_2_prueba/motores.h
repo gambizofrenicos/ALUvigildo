@@ -20,6 +20,7 @@
 #define DIRD 8
 
 float pwmi = 0, pwmd = 0; // pwm que pasamos a cada motor
+float auxi = 0, auxd = 0;
 
 void inicializar_motores();
 void acotar();
